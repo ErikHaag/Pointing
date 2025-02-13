@@ -1,0 +1,51 @@
+button {
+    border-radius: 3px;
+    box-shadow: 2px 2px 5px gray;
+    margin: 5px;
+    padding: 2px;
+    width: 4em;
+}
+
+button:active {
+    box-shadow: none;
+}
+
+div.centerCol {
+    display: grid;
+    grid-template-columns: auto;
+    justify-content: center;
+    justify-items: center;
+}
+
+div.centerRow {
+    display: flex;
+    justify-content: center;
+}
+
+#pause {
+    background-color: darkorange;
+    border: 3px #c67a00 outset;
+}
+
+#pause:active {
+    border: 3px #c67a00 inset;
+}
+
+#reset {
+    background-color: rgb(180, 20, 20);
+    color: white;
+    border: 3px maroon outset;
+}
+
+#reset:active {
+    border: 3px maroon inset;
+}
+
+#run {
+    background-color: limegreen;
+    border: 3px green outset;
+}
+
+#run:active {
+    border: 3px green inset;
+}
