@@ -28,16 +28,50 @@ function reset() {
     //parse!
 }
 
-const tokenRegexes = [/^[A-Za-z]+($|[^A-Za-z])/, /^(0|[1-9]\d*)($|[^\d])/, /^/];
-const tokenNames = ["identifier", "integer"];
+const tokenRegexes = [/^\(/, /^\)/, /^\{/, /^\}/, /^;/, /^function /, /^[A-Za-z]+(?![A-Za-z])/, /^(0|[1-9]\d*)(?![\d])/, /^\$/, /^\+/, /^_/, /^-/, /^\*/, /^\//, /^%/, /^==/, /^=/, /^<=/, /^>=/, /^</, /^>/, /^\u00AC/, /^\u2227/, /^\u2228/, /^\u22BB/, /^~/, /^&/, /^\|/, /^\^/];
+const tokenName = ["openParen", "closeParen", "openBrac", "closeBrac", "semicolon", "function", "identifier", "integer", "follow", "add", "negate", "subtract", "multiply", "divide", "mod", "equal", "assign", "lessEqual", "greaterEqual", "less", "greater", "boolNot", "boolAnd", "boolOr", "boolXor", "bitNot", "bitAnd", "bitOr", "bitXor"];
 
 function parse() {
-    
+    let lines = codeInput.value.split("\n").map((s) => s.trim());
+    let input = lines.join("");
+    let tokens = [];
+    let tokenNames = [];
+    let current = 0;
+    invalid = false;
+    tokenize: while (input.length > 0) {
+        while (input[0] == " " || input[0] == ",") {
+            input = input.substring(1);
+            current++;
+        }
+        for (let i = 0; i < 29; i++) {
+            let test = tokenRegexes[i].exec(input);
+            if (test !== null) {
+                tokenNames.push(tokenName[i]);
+                tokens.push(test[0]);
+                input = input.substring(test[0].length);
+                current += test[0].length;
+                continue tokenize;
+            }
+        }
+        invalid = true;
+        break;
+    }
+    if (invalid) {
+        let accumulation = 0;
+        let line = 0
+        while (accumulation < current) {
+            accumulation += lines[line];
+            line++;
+        }
+        line--;
+        console.log("Error on line " + line);
+        return;
+    }
 }
 
 
 function allocate(slots) {
-    if (slots <= 0n) {
+    if (slots <= 0n) {``
         //ROZ;
         return 0n;
     }
