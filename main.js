@@ -227,7 +227,6 @@ function parse() {
     }
 }
 
-
 function allocate(slots) {
     if (slots <= 0n) {
         //ROZ;
@@ -297,10 +296,37 @@ function free(pointer, slots = 0n) {
 
 function read(index) {
     if (index == 0n) {
+        //ROZ
         return 0n;
     }
     if (index > 0n) {
         return mainMemory[index - 1n];
     }
     return orphanedPointers[-index - 1n];
+}
+
+function write(index, value) {
+    if (index == 0n) {
+        //ROZ
+        return;
+    }
+    if (index > 0n) {
+        if (value == "empty") {
+            if (index > mainMemory.length) {
+                return;
+            }
+            if (index == mainMemory.length) {
+                mainMemory.pop();
+            }
+            delete mainMemory[index - 1];
+            return;
+        }
+        mainMemory[index - 1] = value;
+        return;
+    }
+    if (value == "empty") {
+        orphanedPointers.splice(-index - 1, 1);
+        return;
+    }
+    orphanedPointers[-index - 1] = value;
 }
