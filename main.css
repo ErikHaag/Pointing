@@ -49,3 +49,8 @@ div.centerRow {
 #run:active {
     border: 3px green inset;
 }
+
+textarea {
+    width: 50em;
+    height: 50em;
+}
