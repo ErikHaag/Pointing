@@ -91,12 +91,12 @@ function parse() {
     function indexToLine(i) {
         let accumulation = 0;
         let line = 0
-        while (accumulation < i) {
+        while (accumulation <= i) {
             // if we hit the end, just hammer it home.
-            accumulation += lines[line]?.length ?? i + 1;
+            accumulation += lines?.[line].length ?? i + 1;
             line++;
         }
-        return " on line " + --line;
+        return " on line " + line;
     }
 
     if (invalid) {
@@ -106,12 +106,12 @@ function parse() {
 
     //function seperation
     current = 0;
-    state = 0;
-    brackets = [];
-    bracketCurrent = []
-    functionName = "";
-    arguments = [];
-    functionI = -1;
+    let state = 0;
+    let brackets = [];
+    let bracketCurrent = [];
+    let functionName = "";
+    let args = [];
+    let functionI = -1;
     for (let i = 0; i < tokens.length; i++) {
         switch (state) {
             case 1:
@@ -144,7 +144,7 @@ function parse() {
                 break;
             case "identifier":
                 if (state != 0 && state != 2 && state != 5 && state != 7) {
-                    lastError = texts.errors.found.identifier + indexToLine(current)
+                    lastError = texts.errors.found.identifier + indexToLine(current);
                     return false;
                 }
                 if (state == 2) {
@@ -152,7 +152,7 @@ function parse() {
                     state = 3;
                 }
                 if (state == 5) {
-                    arguments.push(tokens[i]);
+                    args.push(tokens[i]);
                 }
                 break;
             case "openParen":
@@ -167,11 +167,16 @@ function parse() {
                 bracketCurrent.push(current);
                 break;
             case "closeParen":
-                if (state != 5 && state != 7) {
+                if (state != 0 && state != 5 && state != 7) {
                     lastError = texts.errors.found.closeParen + indexToLine(current);
+                    return false;
                 }
                 {
                     let bracket = brackets.pop();
+                    if (bracket == undefined) {
+                        lastError = texts.errors.found.closeParen + indexToLine(current);
+                        return false;
+                    }
                     if (bracket != "(") {
                         lastError = bracket + indexToLine(bracketCurrent.pop()) + texts.errors.incorrectPairing + ")" + indexToLine(current);
                         return false;
@@ -191,22 +196,27 @@ function parse() {
                     state = 7;
                 }
                 brackets.push("{");
+                bracketCurrent.push(current);
                 break;
             case "closeBrac":
-                if (state != 0 && state != 7 || brackets.pop() != "{") {
+                if (state != 0 && state != 7) {
                     lastError = texts.errors.found.closeBrac + indexToLine(current);
                     return false;
                 }
                 {
                     let bracket = brackets.pop();
-                    if (bracket != "(") {
-                        lastError = bracket + indexToLine(bracketCurrent.pop()) + texts.errors.incorrectPairing + ")" + indexToLine(current);
+                    if (bracket == undefined) {
+                        lastError = texts.errors.found.closeBrac + indexToLine(current);
+                        return false;
+                    }
+                    if (bracket != "{") {
+                        lastError = bracket + indexToLine(bracketCurrent.pop()) + texts.errors.incorrectPairing + "}    " + indexToLine(current);
                         return false
                     }
                 }
                 bracketCurrent.pop();
                 if (brackets.length == 0) {
-                    functions.set(functionName, [arguments, functionI, functionI + arguments.length + 6, i]);
+                    functions.set(functionName, [args, functionI, functionI + args.length + 6, i - 1]);
                     arguments = [];
                     state = 0;
                 }
@@ -330,3 +340,4 @@ function write(index, value) {
     }
     orphanedPointers[-index - 1] = value;
 }
+
