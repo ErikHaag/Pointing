@@ -489,7 +489,7 @@ function nextSubExpression(tp) {
                     counter += 2;
                     break;
                 default:
-                    counter += functions.get(tokens[tp])[0].length - 1;
+                    counter += functions.get(tokens[tp])[0].length;
                     break;
             }
             tp += 2n;
@@ -529,13 +529,13 @@ function nextSubExpression(tp) {
             case "while":
                 lastError = texts.errors.found.while + tokenIndexToLine(tp);
                 return false;
+            case "closeParen":
             case "identifier":
             case "integer":
                 counter--;
                 break;
             case "bitNot":
             case "boolNot":
-            case "closeParen":
             case "comment":
             case "follow":
             case "negate":
@@ -1067,8 +1067,7 @@ function doInstruction() {
                     break;
             }
             if (tokenNames[tp] == "break" || tokenNames[tp] == "continue") {
-                //seems fitting
-                return;
+                return true;
             }
         //fall through
         case "continueEvaluation":
@@ -1078,7 +1077,7 @@ function doInstruction() {
                 return false;
             }
             if (evaluation == "functionCall") {
-                return;
+                return true;
             }
             instr = stateStack.at(-1);
             switch (instr.instruction) {
@@ -1122,4 +1121,5 @@ function doInstruction() {
                     break;
             }
     }
+    return true;
 }
