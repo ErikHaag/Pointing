@@ -24,9 +24,11 @@ const texts = {
         found: {
             assign: "Unexpected \"=\"",
             break: "Unexpected \"break\"",
+            breakOutsideLoop: "Found \"break\' outside a loop",
             closeBrac: "Unexpected \"}\"",
             closeParen: "Unexpected \")\"",
             continue: "Unexpected \"continue\"",
+            continueOutsideLoop: "Found \"continue\' outside a loop",
             else: "Unexpected \"else\"",
             elseif: "Unexpected \"elseif\"",
             empty: "Found \"empty\" in expression starting",
@@ -47,6 +49,7 @@ const texts = {
         incorrectPairing: " is paired with ",
         invalidToken: "Invalid token",
         linePrefix: " on line ",
+        missingFunction: "Missing function",
         missingIdentifier: "Missing identifier",
         unpairedBrackets: "Unpaired brackets ",
         expected: {
@@ -145,7 +148,7 @@ function parse() {
                     state = 4
                     break;
                 case 4:
-                    lastError = texts.errors.missing.openParen + tokenIndexToLine(i);
+                    lastError = texts.errors.expected.openParen + tokenIndexToLine(i);
                     return false;
                 default:
                     break;
@@ -218,16 +221,12 @@ function parse() {
                     bracketTokenIndices.push(current);
                     break;
                 case "closeBrac":
-                    if (state != 0 && state != 7) {
-                        lastError = texts.errors.found.closeBrac + tokenIndexToLine(i);
-                        return false;
-                    }
-                    if (lastBracket == "") {
+                    if (state != 0 && state != 7 || lastBracket == "") {
                         lastError = texts.errors.found.closeBrac + tokenIndexToLine(i);
                         return false;
                     }
                     if (lastBracket == "(") {
-                        lastError = "(" + texts.errors.linePrefix + tokenLineNumber[bracketTokenIndices.pop()] + texts.errors.incorrectPairing + "}    " + tokenIndexToLine(i);
+                        lastError = "(" + tokenIndexToLine(bracketTokenIndices.pop()) + texts.errors.incorrectPairing + "}    " + tokenIndexToLine(i);
                         return false
                     }
                     brackets--;
@@ -974,7 +973,7 @@ function doInstruction() {
                 case "break":
                     while (stateStack.at(-1)?.instruction != "while") {
                         if (stateStack.pop() ?? "function" == "function") {
-                            lastError = texts.errors.breakOutsideLoop + tokenIndexToLine(tp);
+                            lastError = texts.errors.found.breakOutsideLoop + tokenIndexToLine(tp);
                             return false;
                         }
                     }
@@ -983,7 +982,7 @@ function doInstruction() {
                 case "continue":
                     while (stateStack.at(-1)?.instruction != "while") {
                         if (stateStack.pop() ?? "function" == "function") {
-                            lastError = texts.errors.continueOutsideLoop + tokenIndexToLine(tp);
+                            lastError = texts.errors.found.continueOutsideLoop + tokenIndexToLine(tp);
                             return false;
                         }
                     }
