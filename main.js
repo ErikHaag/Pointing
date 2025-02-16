@@ -276,7 +276,7 @@ function parse() {
                     break;
                 case "else":
                     if (tokenNames[i + 1n] != "openBrac") {
-                        lastError = texts.errors.expected.openBrac + tokenIndexToLine(tp + 1n);
+                        lastError = texts.errors.expected.openBrac + tokenIndexToLine(i + 1n);
                         return false;
                     }
                     if (lastBranch == "none") {
@@ -292,8 +292,8 @@ function parse() {
                         lastError = texts.errors.found.elseif + tokenIndexToLine(i);
                         return false;
                     }
-                    if (tokenNames[tp + 1n] != "openParen") {
-                        lastError = texts.errors.expected.openParen + tokenIndexToLine(tp + 1n);
+                    if (tokenNames[i + 1n] != "openParen") {
+                        lastError = texts.errors.expected.openParen + tokenIndexToLine(i + 1n);
                         return false;
                     }
                     {
@@ -313,11 +313,11 @@ function parse() {
                     break;
                 case "if":
                     if (tokenNames[i + 1n] != "openParen") {
-                        lastError = texts.errors.expected.openParen + tokenIndexToLine(tp + 1n);
+                        lastError = texts.errors.expected.openParen + tokenIndexToLine(i + 1n);
                         return false;
                     }
                     {
-                        let afterCondition = nextSubExpression(tp + 2n);
+                        let afterCondition = nextSubExpression(i + 2n);
                         if (tokenNames[afterCondition] != "closeParen") {
                             lastError = texts.errors.expected.closeParen + tokenIndexToLine(afterCondition);
                             return false;
@@ -334,12 +334,12 @@ function parse() {
                     lastError = texts.errors.found.openBrac + tokenIndexToLine(i);
                     return false;
                 case "while":
-                    if (tokenNames[tp + 1n] != "openParen") {
-                        lastError = texts.errors.expected.openParen + tokenIndexToLine(tp + 1n);
+                    if (tokenNames[i + 1n] != "openParen") {
+                        lastError = texts.errors.expected.openParen + tokenIndexToLine(i + 1n);
                         return false;
                     }
                     {
-                        let afterCondition = nextSubExpression(tp + 2n);
+                        let afterCondition = nextSubExpression(i + 2n);
                         if (tokenNames[afterCondition] != "closeParen") {
                             lastError = texts.errors.expected.closeParen + tokenIndexToLine(afterCondition);
                             return false;
