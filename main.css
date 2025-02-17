@@ -1,3 +1,4 @@
+/* Main styling */
 button {
     border-radius: 3px;
     box-shadow: 2px 2px 5px gray;
@@ -22,6 +23,10 @@ div.centerRow {
     justify-content: center;
 }
 
+p {
+    text-align: center;
+}
+
 #pause {
     background-color: darkorange;
     border: 3px #c67a00 outset;
@@ -33,8 +38,8 @@ div.centerRow {
 
 #reset {
     background-color: rgb(180, 20, 20);
-    color: white;
     border: 3px maroon outset;
+    color: white;
 }
 
 #reset:active {
@@ -50,7 +55,106 @@ div.centerRow {
     border: 3px green inset;
 }
 
+/* 
+  Make the textarea fancy, based on Anthony Morphett's Turing machine simulator
+  https://morphett.info/turing/turing.html
+  (Hopefully he doesn't mind)
+*/
+
+#sourceContainer {
+    display: flex;
+    height: min-content;
+    flex-flow: row;
+}
+
 textarea {
-    width: 50em;
+    background-color: transparent;
+    border: 5px maroon solid;
+    font-family: monospace;
+    font-size: 15px;
     height: 50em;
+    line-height: 17px;
+    position: relative;
+    width: 50em;
+}
+
+#lineBackgroundContainer, #linesContainer {
+    overflow: hidden;
+    width: fit-content;
+}
+
+#lineBackgrounds,
+#lineNumbers {
+    display: flex;
+    flex-direction: column;
+}
+
+#lineBackgroundContainer {
+    position: absolute;
+    transform: translate(5px, 5px);
+}
+
+#lineBackgrounds>div {
+    background-color: white;
+    width: inherit;
+    height: 17px;
+}
+
+#lineBackgrounds>div.odd {
+    background-color: #eee;
+}
+
+#linesBackgrounds>div.current {
+    background-color: lightblue;
+}
+
+#lineBackgrounds>div.error {
+    background-color: #ffe0e0;
+}
+
+#linesContainer {
+    transform: translate(0px, 5px);
+}
+
+#lineNumbers>div {
+    color: #410d0d;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 15px;
+    height: 17px;
+    padding: 0px 5px;
+    text-align: center;
+    width: 40px;
+}
+
+#lineNumbers>div.red {
+    background: linear-gradient(to right, lightgray 0% 90%, red 90% 100%);
+}
+
+#lineNumbers>div.orange {
+    background: linear-gradient(to right, lightgray 0% 90%, orange 90% 100%);
+
+}
+
+#lineNumbers>div.yellow {
+    background: linear-gradient(to right, lightgray 0% 90%, yellow 90% 100%);
+
+}
+
+#lineNumbers>div.green {
+    background: linear-gradient(to right, lightgray 0% 90%, lime 90% 100%);
+
+}
+
+#lineNumbers>div.blue {
+    background: linear-gradient(to right, lightgray 0% 90%, blue 90% 100%);
+}
+
+#lineNumbers>div.purple {
+    background: linear-gradient(to right, lightgray 0% 90%, purple 90% 100%);
+}
+
+#lineNumbers>div.error {
+    background: linear-gradient(to right, red 0% 90%, blue 90% 100%);
+    color: white;
 }
