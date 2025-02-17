@@ -5,6 +5,7 @@
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Pointing</title>
+    <link rel="icon" type="image/png" href="icon.png">
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
 </head>
@@ -15,12 +16,20 @@
         <div id="memory">
 
         </div>
-        <textarea id="codeInput"></textarea>
+        <div id="sourceContainer">
+            <div id="linesContainer">
+                <div id="lines">
+
+                </div>
+            </div>
+            <textarea spellcheck="false" id="codeInput"></textarea>
+        </div>
         <div class="centerRow">
             <button id="run">Run</button>
             <button id="pause">Pause</button>
             <button id="reset">Reset</button>
         </div>
+        <p>This programming language uses some non-ascii characters.<br>For copy-paste convenience, they are: &#x00AC; &#x2227; &#x2228; &#x22BB;</p>
         <a href="https://esolangs.org/wiki/pointing" target="_blank">Check out the esolang article!</a>
     </div>
 </body>

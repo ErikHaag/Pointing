@@ -63,6 +63,7 @@ const texts = {
 };
 
 let lastError = "";
+let lastErrorLine = 0n;
 
 function reset() {
     //reset the state
@@ -77,13 +78,21 @@ function reset() {
 }
 
 //Not alphabetized due to explicit priority
-const tokenRegexes = [/^\[[\S\s]*?\]/, /^\(/, /^\)/, /^\{/, /^\}/, /^function /, /^return( |(?=[,;\n]))/, /^if /, /^elseif /, /^else /, /^while /, /^continue(?=[,\n])/, /^continue(?=[,\n])/, /^[A-Za-z]+(?![A-Za-z])/, /^(0|[1-9]\d*)(?![\d])/, /^\$/, /^\+/, /^_/, /^-/, /^\*/, /^\//, /^%/, /^==/, /^=/, /^<=/, /^>=/, /^</, /^>/, /^\u00AC/, /^\u2227/, /^\u2228/, /^\u22BB/, /^~/, /^&/, /^\|/, /^\^/, /^\?/, /^;/];
-const tokenName = ["comment", "openParen", "closeParen", "openBrac", "closeBrac", "function", "return", "if", "elseif", "else", "while", "continue", "break", "identifier", "integer", "follow", "add", "negate", "subtract", "multiply", "divide", "mod", "equal", "assign", "lessEqual", "greaterEqual", "less", "greater", "boolNot", "boolAnd", "boolOr", "boolXor", "bitNot", "bitAnd", "bitOr", "bitXor", "ternary", "semicolon"];
+const tokenRegexes = [/^\[[\S\s]*?\]/, /^\(/, /^\)/, /^\{/, /^\}/, /^function /, /^return( |(?=[,;\n]))/, /^if /, /^elseif /, /^else /, /^while /, /^continue(?=[,\n])/, /^continue(?=[,\n])/, /^[A-Za-z]+(?![A-Za-z])/, /^@[A-Za-z]+(?![A-Za-z])/, /^(0|[1-9]\d*)(?![\d])/, /^\$/, /^\+/, /^_/, /^-/, /^\*/, /^\//, /^%/, /^==/, /^=/, /^<=/, /^>=/, /^</, /^>/, /^\u00AC/, /^\u2227/, /^\u2228/, /^\u22BB/, /^~/, /^&/, /^\|/, /^\^/, /^\?/, /^;/];
+const tokenName = ["comment", "openParen", "closeParen", "openBrac", "closeBrac", "function", "return", "if", "elseif", "else", "while", "continue", "break", "identifier", "identifierLocation", "integer", "follow", "add", "negate", "subtract", "multiply", "divide", "mod", "equal", "assign", "lessEqual", "greaterEqual", "less", "greater", "boolNot", "boolAnd", "boolOr", "boolXor", "bitNot", "bitAnd", "bitOr", "bitXor", "ternary", "semicolon"];
 
-function tokenIndexToLine(tI) {
-    return texts.errors.linePrefix + (tokenIndicesBeforeNewLine.findIndex((e) => e > tI) + 1);
+function tokenIndexToLine(tI, setLEL = true) {
+    let l = 0;
+    if (tokenIndicesBeforeNewLine.at(-1) <= tI) {
+        l = tokenIndicesBeforeNewLine.length + 1;
+    } else {
+        l = (tokenIndicesBeforeNewLine.findIndex((e) => e > tI) + 1);
+    }
+    if (setLEL) {
+        lastErrorLine = l;
+    }
+    return texts.errors.linePrefix + l;
 }
-
 
 function parse() {
     reset();
@@ -106,7 +115,13 @@ function parse() {
                 input = input.substring(1);
                 continue;
             }
-            for (let i = 0; i < 38; i++) {
+            let commentTest = tokenRegexes[0].exec(input);
+            if (commentTest !== null) {
+                //remove comment
+                input = input.substring(commentTest[0].length);
+                continue;
+            }
+            for (let i = 1; i < 39; i++) {
                 let test = tokenRegexes[i].exec(input);
                 if (test !== null) {
                     tokenNames.push(tokenName[i]);
@@ -127,15 +142,15 @@ function parse() {
 
     //function seperation
     {
-        let current = 0;
         let state = 0;
         let brackets = 0n
         let parentheses = 0n
         let bracketTokenIndices = [];
         let functionName = "";
         let args = [];
-        let functionI = -1;
-        for (let i = 0; i < tokens.length; i++) {
+        let argCount = 0n
+        let functionI = -1n;
+        for (let i = 0n; i < tokens.length; i++) {
             let lastBracket = parentheses > 0n ? "(" : brackets > 0n ? "{" : "";
             switch (state) {
                 case 1:
@@ -159,7 +174,7 @@ function parse() {
                         lastError = texts.errors.functionInFunction + tokenIndexToLine(i);
                         return false;
                     }
-                    if (brackets.length != 0) {
+                    if (lastBracket != "") {
                         lastError = texts.errors.functionInBlock + tokenIndexToLine(i);
                         return false;
                     }
@@ -177,6 +192,7 @@ function parse() {
                     }
                     if (state == 5) {
                         args.push(tokens[i]);
+                        argCount++;
                     }
                     break;
                 case "openParen":
@@ -188,7 +204,7 @@ function parse() {
                         state = 5;
                     }
                     parentheses++
-                    bracketTokenIndices.push(current);
+                    bracketTokenIndices.push(i);
                     break;
                 case "closeParen":
                     if (state != 0 && state != 5 && state != 7) {
@@ -200,7 +216,7 @@ function parse() {
                         return false;
                     }
                     if (lastBracket == "{") {
-                        lastError = "{" + tokenIndexToLine(bracketTokenIndices.pop()) + texts.errors.incorrectPairing + ")" + tokenIndexToLine(i);
+                        lastError = "{" + tokenIndexToLine(bracketTokenIndices.pop()) + texts.errors.incorrectPairing + ")" + tokenIndexToLine(i, false);
                         return false;
                     }
                     parentheses--;
@@ -218,7 +234,7 @@ function parse() {
                         state = 7;
                     }
                     brackets++;
-                    bracketTokenIndices.push(current);
+                    bracketTokenIndices.push(i);
                     break;
                 case "closeBrac":
                     if (state != 0 && state != 7 || lastBracket == "") {
@@ -226,20 +242,22 @@ function parse() {
                         return false;
                     }
                     if (lastBracket == "(") {
-                        lastError = "(" + tokenIndexToLine(bracketTokenIndices.pop()) + texts.errors.incorrectPairing + "}    " + tokenIndexToLine(i);
+                        lastError = "(" + tokenIndexToLine(bracketTokenIndices.pop()) + texts.errors.incorrectPairing + "}" + tokenIndexToLine(i, false);
                         return false
                     }
                     brackets--;
-                    if (brackets == 0) {
-                        functions.set(functionName, [args, functionI, functionI + args.length + 6, i - 1]);
-                        arguments = [];
+                    if (state == 7 && brackets == 0) {
+                        functions.set(functionName, [argCount, args, functionI, functionI + argCount + 5n, i - 1n]);
+                        args = [];
+                        argCount = 0n;
                         state = 0;
                     }
+                    break;
                 case "comment":
                     break;
                 case "return":
                     if (state != 7) {
-                        lastError = texts.errors.found.return;
+                        lastError = texts.errors.found.return + tokenIndexToLine(i);
                         return false;
                     }
                 default:
@@ -311,6 +329,12 @@ function parse() {
                     branchTokenStack[lastBranchIndex] = "if";
                     branchTokenStack.push("none");
                     break;
+                case "function":
+                    // functions are already checked so just grab the data.
+                    i = functions.get(tokens[i + 1n])[3] - 1n;
+                    branchTokenStack[lastBranchIndex] = "none";
+                    branchTokenStack.push("none");
+                    break;
                 case "if":
                     if (tokenNames[i + 1n] != "openParen") {
                         lastError = texts.errors.expected.openParen + tokenIndexToLine(i + 1n);
@@ -347,6 +371,7 @@ function parse() {
                         if (tokenNames[afterCondition + 1n] != "openBrac") {
                             lastError = texts.errors.expected.openBrac + tokenIndexToLine(afterCondition + 1n);
                         }
+                        i = afterCondition + 1n;
                     }
                     branchTokenStack[lastBranchIndex] = "none";
                     branchTokenStack.push("none");
@@ -412,7 +437,7 @@ function free(pointer, slots = 0n) {
         }
         if (deleted) {
             //clean up end of mainMemory
-            mainMemory.length = mainMemory.findLastIndex((e) => e != undefined) + 1n;
+            mainMemory.length = mainMemory.findLastIndex((e) => e != undefined) + 1;
         }
     }
     if (pointer < 0n) {
@@ -472,8 +497,8 @@ function nextSubExpression(tp) {
     if (tp === false) {
         return false
     }
-    let counter = 1;
-    while (counter > 0) {
+    let counter = 1n;
+    while (counter > 0n) {
         if (tokenNames[tp] == "identifier" && tokenNames[tp + 1n] == "openParen") {
             // function
             switch (tokens[tp]) {
@@ -482,13 +507,13 @@ function nextSubExpression(tp) {
                 case "inputStr":
                 case "outputChar":
                 case "outputInt":
-                    counter += 1;
+                    counter += 1n;
                     break;
                 case "free":
-                    counter += 2;
+                    counter += 2n;
                     break;
                 default:
-                    counter += functions.get(tokens[tp])[0].length;
+                    counter += functions.get(tokens[tp])[0];
                     break;
             }
             tp += 2n;
@@ -530,6 +555,7 @@ function nextSubExpression(tp) {
                 return false;
             case "closeParen":
             case "identifier":
+            case "identifierLocation":
             case "integer":
                 counter--;
                 break;
@@ -558,10 +584,10 @@ function nextSubExpression(tp) {
                 counter++;
                 break;
             case "ternary":
-                counter += 2;
+                counter += 2n;
                 break;
             default:
-                lastError = texts.errors.found.token;
+                lastError = texts.errors.found.token + tokenIndexToLine(tp);
                 return false;
         }
         tp++;
@@ -580,72 +606,97 @@ function evaluateExpression() {
             }
             switch (tokenNames[CWTP]) {
                 case "identifier":
-                    switch (tokens[CWTP]) {
-                        case "empty":
-                            resultStack[lastResultIndex].push("empty");
-                            break;
-                        case "false":
-                        case "ROZ":
-                            resultStack[lastResultIndex].push(0n);
-                            break;
-                        case "true":
-                            resultStack[lastResultIndex].push(-1n);
-                            break;
-                        default:
-                            if (tokenNames[CWTP + 1n] == "openParen") {
-                                let functionName = "";
-                                let argCount = 0;
-                                switch (tokens[CWTP]) {
-                                    case "inputInt":
-                                    case "allocate":
-                                    case "inputStr":
-                                    case "outputChar":
-                                    case "outputInt":
-                                        functionName = tokens[CWTP];
-                                        argCount = 1;
-                                        break;
-                                    case "free":
-                                        functionName = tokens[CWTP];
-                                        argCount = 2;
-                                        break;
-                                    default:
-                                        functionName = tokens[CWTP];
-                                        if (!functions.has(functionName)) {
-                                            lastError = texts.errors.missingFunction + tokenIndexToLine(CWTP);
-                                            return false;
-                                        }
-                                        argCount = functions.get(functionName)[0].length;
-                                        break;
-                                }
-                                stateStack.push({ type: "function", name: functionName });
-                                if (argCount > 0) {
-                                    let eI = [CWTP + 2n];
-                                    for (let i = 0; i < argCount - 1; i++) {
-                                        let n = nextSubExpression(eI[0]);
-                                        if (n === false) {
-                                            return false;
-                                        }
-                                        eI.unshift(n);
+                    {
+                        let iden = tokens[CWTP];
+                        switch (iden) {
+                            case "empty":
+                                resultStack[lastResultIndex].push("empty");
+                                break;
+                            case "false":
+                            case "ROZ":
+                                resultStack[lastResultIndex].push(0n);
+                                break;
+                            case "true":
+                                resultStack[lastResultIndex].push(-1n);
+                                break;
+                            default:
+                                if (tokenNames[CWTP + 1n] == "openParen") {
+                                    let functionName = "";
+                                    let argCount = 0n;
+                                    switch (iden) {
+                                        case "inputInt":
+                                        case "allocate":
+                                        case "inputStr":
+                                        case "outputChar":
+                                        case "outputInt":
+                                            functionName = iden;
+                                            argCount = 1n;
+                                            break;
+                                        case "free":
+                                            functionName = iden;
+                                            argCount = 2n;
+                                            break;
+                                        default:
+                                            functionName = iden;
+                                            if (!functions.has(functionName)) {
+                                                lastError = texts.errors.missingFunction + tokenIndexToLine(CWTP);
+                                                return false;
+                                            }
+                                            argCount = functions.get(functionName)[0];
+                                            break;
                                     }
-                                    stateStack.push(eI);
+                                    stateStack.push({ type: "function", name: functionName });
+                                    if (argCount > 0n) {
+                                        let eI = [CWTP + 2n];
+                                        for (let i = 0n; i < argCount - 1n; i++) {
+                                            let n = nextSubExpression(eI[0]);
+                                            if (n === false) {
+                                                return false;
+                                            }
+                                            eI.unshift(n);
+                                        }
+                                        stateStack.push(eI);
+                                    }
+                                    resultStack.push([]);
+                                    break;
                                 }
-                                resultStack.push([]);
-                                break;
-                            }
-                            if (identifiers.has(tokens[CWTP] + "," + callDepth)) {
-                                //local variable
-                                resultStack[lastResultIndex].push(identifiers.get(tokens[CWTP] + "," + callDepth));
-                                break;
-                            } else if (identifiers.has(tokens[CWTP] + ",0")) {
-                                //global variable
-                                resultStack[lastResultIndex].push(identifiers.get(tokens[CWTP] + ",0"));
-                                break;
-                            }
-                            lastError = texts.errors.missingIdentifier + tokenIndexToLine(CWTP);
-                            return false;
+                                if (identifiers.has(iden + "," + callDepth)) {
+                                    //local variable
+                                    resultStack[lastResultIndex].push(read(identifiers.get(iden + "," + callDepth)));
+                                    break;
+                                } else if (identifiers.has(iden + ",0")) {
+                                    //global variable
+                                    resultStack[lastResultIndex].push(read(identifiers.get(iden + ",0")));
+                                    break;
+                                }
+                                lastError = texts.errors.missingIdentifier + tokenIndexToLine(CWTP);
+                                return false;
+                        }
                     }
-                    if (stateStack[stateStack.length - 1].length == 0) {
-                        stateStack.pop();
+                    break;
+                case "identifierLocation":
+                    {
+                        let iden = tokens[CWTP].substring(1);
+                        switch (iden) {
+                            case "empty":
+                            case "true":
+                            case "false":
+                            case "ROZ":
+                                lastError = texts.errors.constantLocation;
+                                return false;
+                            default:
+                                if (identifiers.has(iden + "," + callDepth)) {
+                                    //local variable
+                                    resultStack[lastResultIndex].push(identifiers.get(iden + "," + callDepth));
+                                    break;
+                                } else if (identifiers.has(iden + ",0")) {
+                                    //global variable
+                                    resultStack[lastResultIndex].push(identifiers.get(iden + ",0"));
+                                    break;
+                                }
+                                lastError = texts.errors.missingIdentifier + tokenIndexToLine(CWTP);
+                                return false;
+                        }
                     }
                     break;
                 case "integer":
@@ -863,13 +914,13 @@ function evaluateExpression() {
                             lastError = texts.errors.found.empty + tokenIndexToLine(tp);
                             return false;
                         }
-                        output += String.fromCharCode(arg[0] & 65535n);
+                        output += String.fromCharCode(Number(arg[0] & 65535n));
                         resultStack[lastResultIndex].push("none");
                         continue evalutron;
                     default:
                         let f = functions.get(op.name);
-                        tokenPointerStack.push(f[2]);
-                        stateStack.push("functionCall")
+                        tokenPointerStack.push(f[3]);
+                        stateStack.push({instruction: "functionCall"})
                         callDepth++
                         for (let i = 0; i < f[0].length; i++) {
                             let p = allocate(1);
@@ -908,6 +959,7 @@ function evaluateExpression() {
                         free(k, 0);
                     }
                 }
+                tokenPointerStack.pop();
                 callDepth--;
                 break;
             case "subtract":
@@ -952,22 +1004,42 @@ function afterBlock(tp) {
 function doInstruction() {
     //jump over function definitions
     while (tokenNames[tokenPointerStack[tokenPointerStack.length - 1]] == "function") {
-        tokenPointerStack[tokenPointerStack.length - 1] = functions.get(tokens[tokenPointerStack.at(-1) + 1n])[3] + 2n;
+        tokenPointerStack[tokenPointerStack.length - 1] = functions.get(tokens[tokenPointerStack.at(-1) + 1n])[4] + 2n;
     }
     let lastTokenPointerIndex = tokenPointerStack.length - 1;
     let tp = tokenPointerStack.at(lastTokenPointerIndex);
-    //Well, that's certainly a comparisonee(?)
+    if (tokenNames?.[tp] == undefined) {
+        return "EOP";
+    }
+    //Well, that's certainly a comparee(?)
     switch (stateStack.at(-1) instanceof Array ? "continueEvaluation" : stateStack.at(-1)?.instruction ?? "") {
         case "block":
+        case "functionCall":
             if (tokenNames[tp] == "closeBrac") {
-                //leave block
-                stateStack.pop();
-                tp++;
+                if (stateStack.pop().instruction == "block") {
+                    if (stateStack.at(-1)?.instruction == "while") {
+                        tokenPointerStack[lastTokenPointerIndex] = stateStack.at(-1).loc;
+                        stateStack.pop();
+                    } else {
+                        //leave block
+                        tokenPointerStack[lastTokenPointerIndex]++;
+                    }
+                } else {
+                    //leave function
+                    resultStack[resultStack.length - 1].push("none");
+                    for (let k of identifiers.keys()) {
+                        if (k.endsWith("," + callDepth)) {
+                            free(k, 0);
+                        }
+                    }
+                    stateStack.push({instruction: "continueEvaluation"});
+                    tokenPointerStack.pop();
+                    callDepth--;
+                }
                 return "again!";
             }
-            //fall through
+        //fall through
         case "fall":
-        case "functionCall":
         case "":
             switch (tokenNames[tp]) {
                 case "break":
@@ -990,34 +1062,34 @@ function doInstruction() {
                     break;
                 case "else":
                     {
-                        let afterBlock = afterBlock(tp + 1n);
-                        if (stateStack.pop().instruction == "fall") {
-                            tokenPointerStack[lastTokenPointerIndex] = afterBlock;
-                            break;
+                        let aB = afterBlock(tp + 1n);
+                        if (stateStack.pop()?.instruction == "fall") {
+                            tokenPointerStack[lastTokenPointerIndex] = aB;
+                            return "again!";
                         }
                         tokenPointerStack[lastTokenPointerIndex] = tp + 2n;
-                        stateStack.push({instruction: "block"});
+                        stateStack.push({ instruction: "block" });
                     }
                     break;
                 case "elseif":
                     {
-                        let afterCondition = nextSubExpression(tp + 2n);
-                        let afterBlock = afterBlock(afterCondition + 1n);
-                        if (stateStack.at(-1).instruction == "fall") {
-                            tokenPointerStack[lastTokenPointerIndex] = afterBlock
-                            if (tokenNames[afterBlock] != "elseif" && tokenNames[afterBlock] != "else") {
+                        let aC = nextSubExpression(tp + 2n);
+                        let aB = afterBlock(aC + 1n);
+                        if (stateStack.at(-1)?.instruction == "fall") {
+                            tokenPointerStack[lastTokenPointerIndex] = aB
+                            if (tokenNames[aB] != "elseif" && tokenNames[aB] != "else") {
                                 stateStack.pop();
                             }
-                            break;
+                            return "again!";
                         }
-                        stateStack.splice(-1, 1, { instruction: "if", start: afterCondition + 2n, after: afterBlock }, "output", [tp + 2n]);
+                        stateStack.splice(-1, 1, { instruction: "if", start: aC + 2n, after: aB }, "output", [tp + 2n]);
                         resultStack.push([]);
                     }
                     break;
                 case "if":
                     {
-                        let afterCondition = nextSubExpression(tp + 2n);
-                        stateStack.push({ instruction: "if", start: afterCondition + 2n, after: afterBlock(afterCondition + 1n) }, "output", [tp + 2n]);
+                        let aC = nextSubExpression(tp + 2n);
+                        stateStack.push({ instruction: "if", start: aC + 2n, after: afterBlock(aC + 1n) }, "output", [tp + 2n]);
                         resultStack.push([]);
                     }
                     break;
@@ -1026,7 +1098,7 @@ function doInstruction() {
                         lastError = texts.errors.returnOutsideFunction + tokenIndexToLine(tp);
                         return false;
                     }
-                    while (stateStack.pop() != "functionCall") { }
+                    while (stateStack.pop()?.instruction != "functionCall") { }
                     if (tokenNames[tp + 1n] == "semicolon") {
                         resultStack[resultStack.length - 1].push("none");
                         //remove local variables
@@ -1035,6 +1107,7 @@ function doInstruction() {
                                 free(k, 0);
                             }
                         }
+                        tokenPointerStack.pop();
                         callDepth--;
                         break;
                     }
@@ -1042,21 +1115,24 @@ function doInstruction() {
                     break;
                 case "while":
                     {
-                        let afterCondition = nextSubExpression(tp + 2n);
-                        stateStack.push({ instruction: "while", loc: tp, start: afterCondition + 2n, after: afterBlock(afterCondition + 1n) }, "output", [tp + 2n]);
+                        let aC = nextSubExpression(tp + 2n);
+                        stateStack.push({ instruction: "while", loc: tp, start: aC + 2n, after: afterBlock(aC + 1n) }, "output", [tp + 2n]);
                         resultStack.push([]);
                     }
                     break;
-                case "identifier":
-                    if (tokenNames[tp + 1n] == "assign" && !identifiers.has(tokens[tp] + ",0") && !identifiers.has(tokens[tp] + "," + callDepth)) {
-                        identifiers.set(tokens[tp] + "," + callDepth, -BigInt(orphanedPointers.push(allocate(0))));
+                case "identifierLocation":
+                    {
+                        let iden = tokens[tp].substring(1);
+                        if (tokenNames[tp + 1n] == "assign" && !identifiers.has(iden + ",0") && !identifiers.has(iden + "," + callDepth)) {
+                            identifiers.set(iden + "," + callDepth, -BigInt(orphanedPointers.push(allocate(0))));
+                        }
                     }
                 //fall through
                 default:
                     {
                         let nse = nextSubExpression(tp);
                         if (tokenNames[nse] == "assign") {
-                            stateStack.push({ instruction: "assign", loc: tp, val: nse + 1n, locEvaled: false }, "output", [tp]);
+                            stateStack.push({ instruction: "assign", loc: null, val: nse + 1n }, "output", [tp]);
                             resultStack.push([]);
                             break;
                         }
@@ -1065,12 +1141,15 @@ function doInstruction() {
                     }
                     break;
             }
-            if (tokenNames[tp] == "break" || tokenNames[tp] == "continue") {
+            if (tokenNames[tp] != "identifier" && tokenNames[tp] != "identifierLocation") {
                 return true;
             }
         //fall through
         case "continueEvaluation":
         default:
+            if (stateStack.at(-1)?.instruction == "continueEvaluation") {
+                stateStack.pop();
+            }
             let evaluation = evaluateExpression();
             if (evaluation === false) {
                 return false;
@@ -1078,10 +1157,10 @@ function doInstruction() {
             if (evaluation == "functionCall") {
                 return true;
             }
-            instr = stateStack.at(-1);
+            let instr = stateStack.at(-1);
             switch (instr.instruction) {
                 case "assign":
-                    if (instr.locEvaled) {
+                    if (instr.loc != null) {
                         write(instr.loc, evaluation)
                         let afterAssign = nextSubExpression(instr.val);
                         if (afterAssign === false) {
@@ -1092,7 +1171,6 @@ function doInstruction() {
                         break;
                     }
                     stateStack[stateStack.length - 1].loc = evaluation;
-                    stateStack[stateStack.length - 1].locEvaled = true;
                     stateStack.push("output", [instr.val]);
                     resultStack.push([]);
                     return "again!";
@@ -1100,12 +1178,15 @@ function doInstruction() {
                 case "if":
                     if (evaluation != 0n && evaluation != "empty") {
                         tokenPointerStack[lastTokenPointerIndex] = instr.start;
-                        let nextTokenAfterBlock = tokenNames[instr.blockEnd];
+                        let nextTokenAfterBlock = tokenNames[instr.after];
                         if (nextTokenAfterBlock == "elseif" || nextTokenAfterBlock == "else") {
-                            stateStack.splice(-1, 1, { instruction: "fall" });
+                            stateStack.splice(-1, 1, { instruction: "fall" }, { instruction: "block" });
+                            break;
                         }
+                        stateStack.splice(-1, 1, { instruction: "block" });
                         break;
                     }
+                    stateStack.pop();
                     tokenPointerStack[lastTokenPointerIndex] = instr.after;
                     break;
                 case "evaluate":
@@ -1114,10 +1195,15 @@ function doInstruction() {
                 case "while":
                     if (evaluation != 0n && evaluation != "empty") {
                         tokenPointerStack[lastTokenPointerIndex] = instr.start;
+                        stateStack.push({ instruction: "block" })
                         break;
                     }
                     tokenPointerStack[lastTokenPointerIndex] = instr.after;
+                    stateStack.pop();
                     break;
+                default:
+                    lastError = texts.errors.unknownState + tokenIndexToLine(tokenPointerStack[lastTokenPointerIndex]) + "\n" + stateStack.reverse().join(", ");
+                    return false;
             }
     }
     return true;
