@@ -9,6 +9,8 @@ codeInput.addEventListener("input", (e) => {
         case "deleteByCut":
         case "deleteContentBackward":
         case "deleteContentForward":
+        case "deleteWordForward":
+        case "deleteWordBackward":
         case "historyRedo":
         case "historyUndo":
         case "insertFromPaste":
@@ -24,7 +26,7 @@ codeInput.addEventListener("input", (e) => {
             }
             break;
         default:
-            console.log(e.inputType);
+            // console.log(e.inputType);
             break;
     }
 })
@@ -38,7 +40,9 @@ let resizeEvent = new MutationObserver(
         for (let r of records) {
             if (r.type == "attributes") {
                 if (r.attributeName == "style") {
-                    linesContainer.style.height = Number(getComputedStyle(codeInput).height.slice(0, -2)) + 6.8 + "px";
+                    let codeInputHeight = Number(getComputedStyle(codeInput).height.slice(0, -2));
+                    lineNumContainer.style.height = codeInputHeight + 6.8 + "px";
+                    lineBackgroundContainer.style.height = codeInputHeight + 4 + "px";
                     updateLineNumbers();
                     break;
                 }
@@ -75,9 +79,9 @@ function updateLineNumbers() {
     // keep an extra line above and below
     let lineOff = vScroll % lineHeight;
     let topLine = bigMax(BigInt(Math.round((vScroll - lineOff) / lineHeight)) + 1n, 1n)
-    let bottomLine = bigMin(BigInt(Math.round((vScroll + codeInputHeight - lineOff) / lineHeight)) + 1n, lineCount);
+    let bottomLine = bigMin(BigInt(Math.round((vScroll + codeInputHeight - lineOff) / lineHeight)) + 2n, lineCount);
     //shimmy the margin
-    linesBox.style.marginTop = -lineOff + "px";
+    lineNumBox.style.marginTop = -lineOff + "px";
     lineBackgroundBox.style.marginTop = - lineOff + "px";
     //ensure the alternation fully extends horizontally
     lineBackgroundBox.style.width = codeInputWidth + "px";
@@ -99,7 +103,7 @@ function updateLineNumbers() {
         lineNumHtml += "<div class=\"" + getLineBannerColor(i) + (i == lastErrorLine ? " error": "") + "\">" + n + "</div>";
     }
     lineBackgroundBox.innerHTML = lineBackgroundHTML;
-    linesBox.innerHTML = lineNumHtml;
+    lineNumBox.innerHTML = lineNumHtml;
 }
 
 updateLineNumbers();

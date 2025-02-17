@@ -65,19 +65,6 @@ const texts = {
 let lastError = "";
 let lastErrorLine = 0n;
 
-function reset() {
-    //reset the state
-    mainMemory = [];
-    orphanedPointers = [];
-    stateStack = [];
-    tokenPointerStack = [0n];
-    callDepth = 0n;
-    identifiers = new Map();
-    functions = new Map();
-    output = "";
-    lastErrorLine = 0n;
-}
-
 //Not alphabetized due to explicit priority
 const tokenRegexes = [/^\[[\S\s]*?\]/, /^\(/, /^\)/, /^\{/, /^\}/, /^function /, /^return( |(?=[,;]))/, /^if /, /^elseif /, /^else /, /^while /, /^continue(?=[,\n])/, /^continue(?=[,\n])/, /^[A-Za-z]+(?![A-Za-z])/, /^@[A-Za-z]+(?![A-Za-z])/, /^(0|[1-9]\d*)(?![\d])/, /^\$/, /^\+/, /^_/, /^-/, /^\*/, /^\//, /^%/, /^==/, /^=/, /^<=/, /^>=/, /^</, /^>/, /^\u00AC/, /^\u2227/, /^\u2228/, /^\u22BB/, /^~/, /^&/, /^\|/, /^\^/, /^\?/, /^;/];
 const tokenName = ["comment", "openParen", "closeParen", "openBrac", "closeBrac", "function", "return", "if", "elseif", "else", "while", "continue", "break", "identifier", "identifierLocation", "integer", "follow", "add", "negate", "subtract", "multiply", "divide", "mod", "equal", "assign", "lessEqual", "greaterEqual", "less", "greater", "boolNot", "boolAnd", "boolOr", "boolXor", "bitNot", "bitAnd", "bitOr", "bitXor", "ternary", "semicolon"];
@@ -127,11 +114,8 @@ function allocate(slots) {
     return ++i;
 }
 
-function doInstruction() {
-    //jump over function definitions
-    while (tokenNames[tokenPointerStack[tokenPointerStack.length - 1]] == "function") {
-        tokenPointerStack[tokenPointerStack.length - 1] = functions.get(tokens[tokenPointerStack.at(-1) + 1n])[4] + 2n;
-    }
+function doInstruction() { 
+    jumpOverFunctions();
     let lastTokenPointerIndex = tokenPointerStack.length - 1;
     let tp = tokenPointerStack.at(lastTokenPointerIndex);
     if (tokenNames?.[tp] == undefined) {
@@ -743,6 +727,13 @@ function free(pointer, slots = 0n) {
     }
 }
 
+function jumpOverFunctions() {
+    //jump over function definitions
+    while (tokenNames[tokenPointerStack[tokenPointerStack.length - 1]] == "function") {
+        tokenPointerStack[tokenPointerStack.length - 1] = functions.get(tokens[tokenPointerStack.at(-1) + 1n])[4] + 2n;
+    }
+}
+
 function nextSubExpression(tp) {
     if (tp === false) {
         return false
@@ -1030,6 +1021,8 @@ function parse() {
             lastError = texts.errors.unpairedBrackets + missing.join(", ");
             return false;
         }
+        jumpOverFunctions();
+        updateLineNumbers();
     }
 
     //ensure if, elseif, and else are in a sensible order
@@ -1153,6 +1146,36 @@ function read(index) {
         return mainMemory?.[index - 1n] ?? "empty";
     }
     return orphanedPointers?.[-index - 1n] ?? "empty";
+}
+
+function reset() {
+    //reset the state
+    mainMemory = [];
+    orphanedPointers = [];
+    stateStack = [];
+    tokenPointerStack = [0n];
+    callDepth = 0n;
+    identifiers = new Map();
+    functions = new Map();
+    output = "";
+    lastErrorLine = 0n;
+}
+
+function step() {
+    let result;
+    do {
+        result = doInstruction();
+        //This is the best backwards jump I can do.
+        //Probably programmed in MoreMathRPN too long.
+    } while (result === "again!")
+    
+    if (result === false) {
+        console.error(lastError);
+    }
+    if (result === "EOP") {
+        console.log("EOF");
+    }
+    updateLineNumbers();
 }
 
 function tokenIndexToLineMessage(tI, setLEL = true) {

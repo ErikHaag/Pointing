@@ -74,7 +74,6 @@ textarea {
     font-size: 15px;
     height: 50em;
     line-height: 17px;
-    position: relative;
     width: 50em;
 }
 
@@ -91,6 +90,7 @@ textarea {
 
 #lineBackgroundContainer {
     position: absolute;
+    z-index: -1;
     transform: translate(5px, 5px);
 }
 
@@ -104,7 +104,7 @@ textarea {
     background-color: #eee;
 }
 
-#linesBackgrounds>div.current {
+#lineBackgrounds>div.current {
     background-color: lightblue;
 }
 
