@@ -189,6 +189,7 @@ textarea {
 
 #memoryContainer>div{
     text-align: center;
+    min-width: 3em;
     padding: 0px 3px;
 }
 
@@ -216,4 +217,15 @@ textarea {
 
 #memoryContainer>div.space {
     background-color: hwb(240 40% 20%);
+}
+
+#info>span {
+    border: 3px blue solid;   
+    font-size: large;
+}
+
+/* Info & Errors */
+#info>span.error {
+    color: red;
+    font-weight: bold;
 }

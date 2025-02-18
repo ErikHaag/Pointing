@@ -60,7 +60,9 @@ const texts = {
             openBrac: "Expected \"{\"",
             openParen: "Expected \"(\""
         }
-    }
+    },
+    integer: "Enter an integer:",
+    string: "Enter a string:"
 };
 
 let lastError = "";
@@ -611,7 +613,7 @@ function evaluateExpression() {
                             let p = allocate(inp.length);
                             write(arg[0], p);
                             for (let i = 0; i < inp.length; i++) {
-                                write(p + i, inp.charCodeAt(i));
+                                write(p + BigInt(i), inp.charCodeAt(i));
                             }
                         }
                         resultStack[lastResultIndex].push("none");
@@ -622,6 +624,7 @@ function evaluateExpression() {
                             return false;
                         }
                         output += arg[0].toString();
+                        updateOutput();
                         resultStack[lastResultIndex].push("none");
                         continue evalutron;
                     case "outputChar":
@@ -630,6 +633,7 @@ function evaluateExpression() {
                             return false;
                         }
                         output += String.fromCharCode(Number(arg[0] & 65535n));
+                        updateOutput();
                         resultStack[lastResultIndex].push("none");
                         continue evalutron;
                     default:
@@ -844,6 +848,7 @@ function nextSubExpression(tp) {
 
 function parse() {
     reset();
+    parsed = false;
     lines = codeInput.value.split("\n").map((s) => s.trim());
     let input = lines.join("\n");
     tokens = [];
@@ -1159,15 +1164,15 @@ function read(index) {
 
 function removeOrphanedPointer(index) {
     orphanedPointers.splice(Number(-index - 1n), 1);
-        inverseIdentifiers.clear();
-        for (let [k, v] of identifiers) {
-            if (v < index) {
-                identifiers.set(k, v + 1n);
-                inverseIdentifiers.set(v + 1n, k);
-            } else {
-                inverseIdentifiers.set(v, k);
-            }
+    inverseIdentifiers.clear();
+    for (let [k, v] of identifiers) {
+        if (v < index) {
+            identifiers.set(k, v + 1n);
+            inverseIdentifiers.set(v + 1n, k);
+        } else {
+            inverseIdentifiers.set(v, k);
         }
+    }
 }
 
 function reset() {
@@ -1180,10 +1185,11 @@ function reset() {
     identifiers.clear()
     inverseIdentifiers.clear();
     output = "";
+    updateOutput();
+    infoBox.innerHTML = "";
     lastErrorLine = 0n;
     clearInterval(clock);
     running = false;
-    parsed = false;
 }
 
 function step(stepCount = 1) {
@@ -1201,14 +1207,13 @@ function step(stepCount = 1) {
         clearInterval(clock);
         running = false;
         updateButtons();
-        //TODO output
-        console.error(lastError);
+        displayError();
     }
     if (result === "EOP") {
         clearInterval(clock);
         running = false;
         updateButtons();
-        console.log("EOP");
+        infoBox.innerHTML += "<span>&lt;Halt&gt;";
     }
     updateLineNumbers();
     updateMemoryDisplay()
@@ -1253,7 +1258,7 @@ function write(index, value) {
         return;
     }
     if (value == "empty") {
-        removeOrphanedPointer(index);        
+        removeOrphanedPointer(index);
         return;
     }
     orphanedPointers[-index - 1n] = value;

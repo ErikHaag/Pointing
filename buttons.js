@@ -10,6 +10,7 @@ runButton.addEventListener("click", () => {
             updateButtons();
         }
     }
+    running = true;
     if (paused) {
         step();
     }
@@ -34,6 +35,7 @@ resetButton.addEventListener("click", () => {
     //love when you can use short circuiting to your advantage!
     if (!parsed && !parse()) {
         updateLineNumbers();
+        displayError();
     } 
     updateButtons();
 });
@@ -42,7 +44,6 @@ function startClock() {
     clock = setInterval(() => {
         step();
     }, 500);
-    running = true;
 }
 
 function updateButtons() {

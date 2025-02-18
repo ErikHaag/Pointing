@@ -6,3 +6,4 @@ let clock;
 
 //display.js
 let lineCount = 1n;
+let prideMonthOverride = (new Date().getMonth()) == 5;

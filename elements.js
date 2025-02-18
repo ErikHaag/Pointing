@@ -6,7 +6,11 @@ const lineNumContainer = document.getElementById("linesContainer");
 const lineNumBox = document.getElementById("lineNumbers");
 const lineBackgroundContainer = document.getElementById("lineBackgroundContainer");
 const lineBackgroundBox = document.getElementById("lineBackgrounds");
-const codeInput = document.getElementById("codeInput"); 
+const codeInput = document.getElementById("codeInput");
+
+//Output
+const infoBox = document.getElementById("info");
+const outputP = document.getElementById("output");
 
 //buttons
 const runButton = document.getElementById("run");

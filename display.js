@@ -2,6 +2,7 @@ codeInput.addEventListener("input", (e) => {
     let force = parsed;
     if (force) {
         reset();
+        parsed = false;
         updateButtons();
     }
     switch (force ? "forced" : e.inputType) {
@@ -55,7 +56,14 @@ let resizeEvent = new MutationObserver(
     }
 );
 
-resizeEvent.observe(codeInput, {attributes: true});
+resizeEvent.observe(codeInput, { attributes: true });
+
+function addSeparators(s) {
+    for (let i = s.length - 3; i > 0; i -= 4) {
+        s = s.substring(0, i) + "," + s.substring(i);
+    }
+    return s;
+}
 
 function bigMax(a, b) {
     return a > b ? a : b;
@@ -65,20 +73,43 @@ function bigMin(a, b) {
     return a < b ? a : b;
 }
 
-let prideMonthOverride = (new Date().getMonth()) == 5;
+function displayError() {
+    infoBox.innerHTML += "<span class=\"error\">Error: " + lastError + "</span>";
+}
 
 function getLineBannerColor(i) {
     if (prideMonthOverride) {
-        return ["red", "orange", "yellow", "green", "blue", "purple"][(i-1n) % 6n];
+        return ["red", "orange", "yellow", "green", "blue", "purple"][(i - 1n) % 6n];
     }
     return "blue";
 }
 
-function addSeparators(s) {
-    for (let i = s.length - 3; i > 0; i -= 4) {
-        s = s.substring(0, i) + "," + s.substring(i);
+function getName(iden) {
+    let d;
+    [iden, d] = iden.split(",");
+    if (d == "0") {
+        return "@" + iden + " (Global)";
+    } else if (BigInt(d) == callDepth) {
+        return "@" + iden + " (Local)";
     }
-    return s;
+    return "";
+}
+
+function getSizeClass(int) {
+    if (typeof int != "bigint") {
+        return "";
+    }
+    let digits = 0;
+    do {
+        digits++;
+        int /= 10n;
+    } while (int > 31n)
+    if (digits >= 30) {
+        return "longer";
+    } else if (digits >= 15) {
+        return "long";
+    }
+    return ""
 }
 
 function updateLineNumbers() {
@@ -107,31 +138,20 @@ function updateLineNumbers() {
     for (let i = topLine; i <= bottomLine; i++) {
         let n = String(i);
         n = addSeparators(n);
-        lineBackgroundHTML += "<div class=\"" + ((i & 1n) == 0n ? "odd" : "") + (running && i == currentLine ? " current" : "") + (i == lastErrorLine ? " error": "") + "\"></div>";
-        lineNumHtml += "<div class=\"" + getLineBannerColor(i) + (i == lastErrorLine ? " error": "") + "\">" + n + "</div>";
+        lineBackgroundHTML += "<div class=\"" + ((i & 1n) == 0n ? "odd" : "") + (running && i == currentLine ? " current" : "") + (i == lastErrorLine ? " error" : "") + "\"></div>";
+        lineNumHtml += "<div class=\"" + getLineBannerColor(i) + (i == lastErrorLine ? " error" : "") + "\">" + n + "</div>";
     }
     lineBackgroundBox.innerHTML = lineBackgroundHTML;
     lineNumBox.innerHTML = lineNumHtml;
-}
-
-updateLineNumbers();
-
-function getName(n) {
-    let [iden, d] = n.split(",");
-    if (d == "0") {
-        return "@" + iden + " (Global)";
-    } else if (BigInt(d) == callDepth) {
-        return "@" + iden + " (Local)";
-    }
-    return "";
 }
 
 function updateMemoryDisplay() {
     let memoryHTML = "";
     for (let i = -BigInt(orphanedPointers.length); i < 0n; i++) {
         let odd = (i & 1n) == 1n;
-        memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + ">" + getName(inverseIdentifiers.get(i)) + "<br>" + i + "</div>";
-        memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + ">" + read(i) + "</div>";
+        let v = read(i);
+        memoryHTML += "<div  class=\"" + (odd ? " odd" : "") + "\">" + getName(inverseIdentifiers.get(i)) + "<br>" + i + "</div>";
+        memoryHTML += "<div  class=\"" + getSizeClass(v) + (odd ? "odd" : "") + "\">" + v + "</div>";
     }
     memoryHTML += "<div>@ROZ<br>0</div><div>0</div>";
     let mainMemoryLength = BigInt(mainMemory.length);
@@ -143,16 +163,23 @@ function updateMemoryDisplay() {
         if (i - previousI <= 3n) {
             for (let j = previousI + 1n; j < i; j++) {
                 let odd = (j & 1n) == 1n;
-                memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + "><br>" + j + "</div>"
-                memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + ">&lt;empty&gt;</div>";
+                memoryHTML += "<div" + (odd ? " class=\"odd\"" : "") + "><br>" + j + "</div>"
+                memoryHTML += "<div" + (odd ? " class=\"odd\"" : "") + ">&lt;empty&gt;</div>";
             }
         } else {
             memoryHTML += "<div class=\"space\"><br>...</div><div class=\"space\"></div>";
         }
         let odd = (i & 1n) == 1n
-        memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + "><br>" + i + "</div>";
-        memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + ">" + read(i) + "</div>";
+        let v = read(i);
+        memoryHTML += "<div class=\"" + (odd ? "odd" : "") + "\"><br>" + i + "</div>";
+        memoryHTML += "<div  class=\"" + getSizeClass(v) + (odd ? " odd" : "") + "\">" + v + "</div>";
         previousI = i;
     }
     memoryContainer.innerHTML = memoryHTML;
 }
+
+function updateOutput() {
+    outputP.innerText = output;
+}
+
+updateLineNumbers();
