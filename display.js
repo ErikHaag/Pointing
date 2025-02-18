@@ -15,7 +15,7 @@ codeInput.addEventListener("input", (e) => {
         case "deleteContentForward":
         case "deleteWordForward":
         case "deleteWordBackward":
-        case "force":
+        case "forced":
         case "historyRedo":
         case "historyUndo":
         case "insertFromPaste":
@@ -25,7 +25,7 @@ codeInput.addEventListener("input", (e) => {
                 i = codeInput.value.indexOf("\n", i + 1);
                 newLineCount++;
             } while (i != -1)
-            if (newLineCount != lineCount) {
+            if (force || newLineCount != lineCount) {
                 lineCount = newLineCount;
                 updateLineNumbers();
             }
