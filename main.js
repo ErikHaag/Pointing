@@ -613,7 +613,7 @@ function evaluateExpression() {
                             let p = allocate(inp.length);
                             write(arg[0], p);
                             for (let i = 0; i < inp.length; i++) {
-                                write(p + BigInt(i), inp.charCodeAt(i));
+                                write(p + BigInt(i), BigInt(inp.charCodeAt(i)));
                             }
                         }
                         resultStack[lastResultIndex].push("none");
