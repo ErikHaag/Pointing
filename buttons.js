@@ -4,13 +4,13 @@ runButton.addEventListener("click", () => {
     }
     if (!running) {
         reset();
+        running = true;
         if (!paused) {
             startClock();
-            updateLineNumbers();
-            updateButtons();
         }
+        updateLineNumbers();
+        updateButtons();
     }
-    running = true;
     if (paused) {
         step();
     }
