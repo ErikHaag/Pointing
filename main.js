@@ -9,6 +9,7 @@ let tokenPointerStack = [0n];
 let callDepth = 0n;
 //every variable, local or global 
 let identifiers = new Map();
+let inverseIdentifiers = new Map();
 //trimmed lines split before tokenizing
 let lines = [];
 //The tokens this code is composed of
@@ -114,7 +115,7 @@ function allocate(slots) {
     return ++i;
 }
 
-function doInstruction() { 
+function doInstruction() {
     jumpOverFunctions();
     let lastTokenPointerIndex = tokenPointerStack.length - 1;
     let tp = tokenPointerStack.at(lastTokenPointerIndex);
@@ -138,7 +139,7 @@ function doInstruction() {
                     //leave function
                     resultStack[resultStack.length - 1].push("none");
                     popFunctionCall();
-                    stateStack.push({instruction: "continueEvaluation"});
+                    stateStack.push({ instruction: "continueEvaluation" });
                 }
                 return "again!";
             }
@@ -221,7 +222,10 @@ function doInstruction() {
                     {
                         let iden = tokens[tp].substring(1);
                         if (tokenNames[tp + 1n] == "assign" && !identifiers.has(iden + ",0") && !identifiers.has(iden + "," + callDepth)) {
-                            identifiers.set(iden + "," + callDepth, -BigInt(orphanedPointers.push(allocate(0))));
+                            let k = iden + "," + callDepth;
+                            let v = -BigInt(orphanedPointers.push(allocate(0)));
+                            identifiers.set(k, v);
+                            inverseIdentifiers.set(v, k);
                         }
                     }
                 //fall through
@@ -631,11 +635,14 @@ function evaluateExpression() {
                     default:
                         let f = functions.get(op.name);
                         tokenPointerStack.push(f[3]);
-                        stateStack.push({instruction: "functionCall"})
+                        stateStack.push({ instruction: "functionCall" })
                         callDepth++
                         for (let i = 0; i < f[0]; i++) {
                             let p = allocate(1);
-                            identifiers.set(f[1][i] + "," + callDepth, -BigInt(orphanedPointers.push(p)));
+                            let k = f[1][i] + "," + callDepth;
+                            let v = -BigInt(orphanedPointers.push(p));
+                            identifiers.set(k, v);
+                            inverseIdentifiers.set(v, k);
                             write(p, arg[i]);
                         }
                         break;
@@ -718,12 +725,7 @@ function free(pointer, slots = 0n) {
         }
     }
     if (pointer < 0n) {
-        orphanedPointers.splice(Number(-pointer - 1n), 1);
-        for (let [k, v] of identifiers) {
-            if (v < pointer) {
-                identifiers.set(k, v + 1n);
-            }
-        }
+        removeOrphanedPointer(pointer);
     }
 }
 
@@ -886,6 +888,7 @@ function parse() {
     }
 
     //function seperation
+    functions.clear();
     {
         let state = 0;
         let brackets = 0n
@@ -1129,6 +1132,7 @@ function parse() {
         }
     }
     parsed = true
+    return true;
 }
 
 function popFunctionCall() {
@@ -1153,6 +1157,19 @@ function read(index) {
     return orphanedPointers?.[-index - 1n] ?? "empty";
 }
 
+function removeOrphanedPointer(index) {
+    orphanedPointers.splice(Number(-index - 1n), 1);
+        inverseIdentifiers.clear();
+        for (let [k, v] of identifiers) {
+            if (v < index) {
+                identifiers.set(k, v + 1n);
+                inverseIdentifiers.set(v + 1n, k);
+            } else {
+                inverseIdentifiers.set(v, k);
+            }
+        }
+}
+
 function reset() {
     //reset the state
     mainMemory = [];
@@ -1160,13 +1177,12 @@ function reset() {
     stateStack = [];
     tokenPointerStack = [0n];
     callDepth = 0n;
-    identifiers = new Map();
-    functions = new Map();
+    identifiers.clear()
+    inverseIdentifiers.clear();
     output = "";
     lastErrorLine = 0n;
     clearInterval(clock);
     running = false;
-    paused = false
     parsed = false;
 }
 
@@ -1180,7 +1196,7 @@ function step(stepCount = 1) {
         } while (result === "again!")
         if (result == false) break;
     }
-    
+
     if (result === false) {
         clearInterval(clock);
         running = false;
@@ -1195,6 +1211,7 @@ function step(stepCount = 1) {
         console.log("EOP");
     }
     updateLineNumbers();
+    updateMemoryDisplay()
 }
 
 function tokenIndexToLineMessage(tI, setLEL = true) {
@@ -1236,12 +1253,7 @@ function write(index, value) {
         return;
     }
     if (value == "empty") {
-        orphanedPointers.splice(Number(-index - 1n), 1);
-        for (let [k, v] of identifiers) {
-            if (v < index) {
-                identifiers.set(k, v + 1n);
-            }
-        }
+        removeOrphanedPointer(index);        
         return;
     }
     orphanedPointers[-index - 1n] = value;

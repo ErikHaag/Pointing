@@ -74,6 +74,13 @@ function getLineBannerColor(i) {
     return "blue";
 }
 
+function addSeparators(s) {
+    for (let i = s.length - 3; i > 0; i -= 4) {
+        s = s.substring(0, i) + "," + s.substring(i);
+    }
+    return s;
+}
+
 function updateLineNumbers() {
     let vScroll = codeInput.scrollTop;
     //chop the units
@@ -99,11 +106,8 @@ function updateLineNumbers() {
     }
     for (let i = topLine; i <= bottomLine; i++) {
         let n = String(i);
-        for (let j = n.length - 3; j > 0; j -= 4) {
-            // If this loop runs once in an actually script, I'll be very impressed
-            n = n.substring(0, j) + "," + n.substring(j)
-        }
-        lineBackgroundHTML += "<div class=\"" + ((i & 1n) == 0n ? "odd" : "") + (parsed && i == currentLine ? " current" : "") + (i == lastErrorLine ? " error": "") + "\"></div>";
+        n = addSeparators(n);
+        lineBackgroundHTML += "<div class=\"" + ((i & 1n) == 0n ? "odd" : "") + (running && i == currentLine ? " current" : "") + (i == lastErrorLine ? " error": "") + "\"></div>";
         lineNumHtml += "<div class=\"" + getLineBannerColor(i) + (i == lastErrorLine ? " error": "") + "\">" + n + "</div>";
     }
     lineBackgroundBox.innerHTML = lineBackgroundHTML;
@@ -111,3 +115,44 @@ function updateLineNumbers() {
 }
 
 updateLineNumbers();
+
+function getName(n) {
+    let [iden, d] = n.split(",");
+    if (d == "0") {
+        return "@" + iden + " (Global)";
+    } else if (BigInt(d) == callDepth) {
+        return "@" + iden + " (Local)";
+    }
+    return "";
+}
+
+function updateMemoryDisplay() {
+    let memoryHTML = "";
+    for (let i = -BigInt(orphanedPointers.length); i < 0n; i++) {
+        let odd = (i & 1n) == 1n;
+        memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + ">" + getName(inverseIdentifiers.get(i)) + "<br>" + i + "</div>";
+        memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + ">" + read(i) + "</div>";
+    }
+    memoryHTML += "<div>@ROZ<br>0</div><div>0</div>";
+    let mainMemoryLength = BigInt(mainMemory.length);
+    let previousI = 0n;
+    for (let i = 1n; i <= mainMemoryLength; i++) {
+        if (read(i) == undefined) {
+            continue;
+        }
+        if (i - previousI <= 3n) {
+            for (let j = previousI + 1n; j < i; j++) {
+                let odd = (j & 1n) == 1n;
+                memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + "><br>" + j + "</div>"
+                memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + ">&lt;empty&gt;</div>";
+            }
+        } else {
+            memoryHTML += "<div class=\"space\"><br>...</div><div class=\"space\"></div>";
+        }
+        let odd = (i & 1n) == 1n
+        memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + "><br>" + i + "</div>";
+        memoryHTML += "<div" + (odd ? " class=\"odd\"": "") + ">" + read(i) + "</div>";
+        previousI = i;
+    }
+    memoryContainer.innerHTML = memoryHTML;
+}

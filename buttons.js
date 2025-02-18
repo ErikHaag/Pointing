@@ -3,16 +3,15 @@ runButton.addEventListener("click", () => {
         return;
     }
     if (!running) {
-        clearInterval(clock);
-        parse();
+        reset();
         if (!paused) {
             startClock();
+            updateLineNumbers();
             updateButtons();
         }
     }
     if (paused) {
         step();
-        return;
     }
 });
 
@@ -32,7 +31,8 @@ pauseButton.addEventListener("click", () => {
 });
 
 resetButton.addEventListener("click", () => {
-    if (parse() === false) {
+    //love when you can use short circuiting to your advantage!
+    if (!parsed && !parse()) {
         updateLineNumbers();
     } 
     updateButtons();

@@ -24,6 +24,10 @@ div.centerRow {
     justify-content: center;
 }
 
+h2 {
+    margin-left: 15%;
+}
+
 p {
     text-align: center;
 }
@@ -174,4 +178,42 @@ textarea {
 #lineNumbers>div.error {
     background: linear-gradient(45deg, transparent 0% 82.5%, blue 82.5% 100%), linear-gradient(135deg, red 0% 82.5%, blue 82.5% 100%);
     color: white;
+}
+
+/* Memory */
+#memoryContainer {
+    display: grid;
+    grid-template-rows: 2fr 1fr;
+    grid-auto-flow: column;
+}
+
+#memoryContainer>div{
+    text-align: center;
+    padding: 0px 3px;
+}
+
+#memoryContainer>div:nth-child(even) {
+    font-size: large;
+    font-weight: bold;
+}
+
+#memoryContainer>div:nth-child(even).long {
+    font-size: medium;
+}
+
+#memoryContainer>div:nth-child(even).longer {
+    /* That's huge! */
+    font-size: small;
+}
+
+#memoryContainer>div {
+    background-color: hwb(196 68% 10%)
+}
+
+#memoryContainer>div.odd {
+    background-color: hwb(195 58% 20%);
+}
+
+#memoryContainer>div.space {
+    background-color: hwb(240 40% 20%);
 }
