@@ -10,8 +10,7 @@ runButton.addEventListener("click", () => {
         }
         updateLineNumbers();
         updateButtons();
-    }
-    if (paused) {
+    } else if (paused) {
         step();
     }
 });
@@ -35,9 +34,9 @@ resetButton.addEventListener("click", () => {
     reset();
     //love when you can use short circuiting to your advantage!
     if (!parsed && !parse()) {
-        updateLineNumbers();
         displayError();
     }
+    updateLineNumbers();
     updateButtons();
 });
 
