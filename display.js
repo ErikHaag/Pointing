@@ -45,10 +45,7 @@ let resizeEvent = new MutationObserver(
         for (let r of records) {
             if (r.type == "attributes") {
                 if (r.attributeName == "style") {
-                    let codeInputHeight = Number(getComputedStyle(codeInput).height.slice(0, -2));
-                    lineNumContainer.style.height = codeInputHeight + 6.8 + "px";
-                    lineBackgroundContainer.style.height = codeInputHeight + 4 + "px";
-                    updateLineNumbers();
+                    updateLineContainerHeight();
                     break;
                 }
             }
@@ -145,6 +142,13 @@ function updateLineNumbers() {
     lineNumBox.innerHTML = lineNumHtml;
 }
 
+function updateLineContainerHeight() {
+    let codeInputHeight = Number(getComputedStyle(codeInput).height.slice(0, -2));
+    lineNumContainer.style.height = codeInputHeight + 6.8 + "px";
+    lineBackgroundContainer.style.height = codeInputHeight + 4 + "px";
+    updateLineNumbers();
+}
+
 function updateMemoryDisplay() {
     let memoryHTML = "";
     for (let i = -BigInt(orphanedPointers.length); i < 0n; i++) {
@@ -157,7 +161,7 @@ function updateMemoryDisplay() {
     let mainMemoryLength = BigInt(mainMemory.length);
     let previousI = 0n;
     for (let i = 1n; i <= mainMemoryLength; i++) {
-        if (read(i) == undefined) {
+        if (read(i) == "empty") {
             continue;
         }
         if (i - previousI <= 3n) {
@@ -175,7 +179,7 @@ function updateMemoryDisplay() {
         memoryHTML += "<div  class=\"" + getSizeClass(v) + (odd ? " odd" : "") + "\">" + v + "</div>";
         previousI = i;
     }
-    memoryContainer.innerHTML = memoryHTML;
+    memoryBox.innerHTML = memoryHTML;
 }
 
 function updateOutput() {
@@ -183,3 +187,4 @@ function updateOutput() {
 }
 
 updateLineNumbers();
+updateLineContainerHeight();

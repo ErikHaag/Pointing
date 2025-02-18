@@ -1,5 +1,5 @@
 //Memory
-const memoryContainer = document.getElementById("memoryContainer");
+const memoryBox = document.getElementById("memoryBox");
 
 //textarea and associated divs
 const lineNumContainer = document.getElementById("linesContainer");

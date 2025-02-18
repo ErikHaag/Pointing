@@ -93,9 +93,9 @@ textarea {
     border: 5px maroon solid;
     font-family: monospace;
     font-size: 15px;
-    height: 40em;
+    height: 200px;
     line-height: 17px;
-    width: 40em;
+    width: 15em;
 }
 
 #lineBackgroundContainer, #linesContainer {
@@ -182,41 +182,50 @@ textarea {
 
 /* Memory */
 #memoryContainer {
+    width: 100%;
+    padding: 0px 5%;
+    overflow-x: auto;
+}
+
+#memoryBox {
     display: grid;
     grid-template-rows: 2fr 1fr;
     grid-auto-flow: column;
 }
 
-#memoryContainer>div{
+#memoryBox>div{
     text-align: center;
     min-width: 3em;
     padding: 0px 3px;
 }
 
-#memoryContainer>div:nth-child(even) {
+#memoryBox>div:nth-child(even) {
     font-size: large;
     font-weight: bold;
 }
 
-#memoryContainer>div:nth-child(even).long {
+#memoryBox>div:nth-child(even).long {
     font-size: medium;
 }
 
-#memoryContainer>div:nth-child(even).longer {
+#memoryBox>div:nth-child(even).longer {
     /* That's huge! */
     font-size: small;
 }
 
-#memoryContainer>div {
+#memoryBox>div {
     background-color: hwb(196 68% 10%)
 }
 
-#memoryContainer>div.odd {
+#memoryBox>div.odd {
     background-color: hwb(195 58% 20%);
 }
 
-#memoryContainer>div.space {
-    background-color: hwb(240 40% 20%);
+#memoryBox>div.space {
+    background-color: hwb(240 45% 20%);
+    color: white;
+    font-size: large;
+    font-weight: bold;
 }
 
 #info>span {

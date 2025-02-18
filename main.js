@@ -69,7 +69,7 @@ let lastError = "";
 let lastErrorLine = 0n;
 
 //Not alphabetized due to explicit priority
-const tokenRegexes = [/^\[[\S\s]*?\]/, /^\(/, /^\)/, /^\{/, /^\}/, /^function /, /^return( |(?=[,;]))/, /^if /, /^elseif /, /^else /, /^while /, /^continue(?=[,\n])/, /^continue(?=[,\n])/, /^[A-Za-z]+(?![A-Za-z])/, /^@[A-Za-z]+(?![A-Za-z])/, /^(0|[1-9]\d*)(?![\d])/, /^\$/, /^\+/, /^_/, /^-/, /^\*/, /^\//, /^%/, /^==/, /^=/, /^<=/, /^>=/, /^</, /^>/, /^\u00AC/, /^\u2227/, /^\u2228/, /^\u22BB/, /^~/, /^&/, /^\|/, /^\^/, /^\?/, /^;/];
+const tokenRegexes = [/^\[[\S\s]*?\]/, /^\(/, /^\)/, /^\{/, /^\}/, /^function /, /^return( |(?=[,;]))/, /^if /, /^elseif /, /^else /, /^while /, /^continue(?=[,\n])/, /^break(?=[,\n])/, /^[A-Za-z]+(?![A-Za-z])/, /^@[A-Za-z]+(?![A-Za-z])/, /^(0|[1-9]\d*)(?![\d])/, /^\$/, /^\+/, /^_/, /^-/, /^\*/, /^\//, /^%/, /^==/, /^=/, /^<=/, /^>=/, /^</, /^>/, /^\u00AC/, /^\u2227/, /^\u2228/, /^\u22BB/, /^~/, /^&/, /^\|/, /^\^/, /^\?/, /^;/];
 const tokenName = ["comment", "openParen", "closeParen", "openBrac", "closeBrac", "function", "return", "if", "elseif", "else", "while", "continue", "break", "identifier", "identifierLocation", "integer", "follow", "add", "negate", "subtract", "multiply", "divide", "mod", "equal", "assign", "lessEqual", "greaterEqual", "less", "greater", "boolNot", "boolAnd", "boolOr", "boolXor", "bitNot", "bitAnd", "bitOr", "bitXor", "ternary", "semicolon"];
 
 function afterBlock(tp) {
@@ -151,7 +151,8 @@ function doInstruction() {
             switch (tokenNames[tp]) {
                 case "break":
                     while (stateStack.at(-1)?.instruction != "while") {
-                        if (stateStack.pop() ?? "function" == "function") {
+                        let top = stateStack.pop();
+                        if (top?.instruction == "function" || top == undefined) {
                             lastError = texts.errors.found.breakOutsideLoop + tokenIndexToLineMessage(tp);
                             return false;
                         }
@@ -160,12 +161,13 @@ function doInstruction() {
                     break;
                 case "continue":
                     while (stateStack.at(-1)?.instruction != "while") {
-                        if (stateStack.pop() ?? "function" == "function") {
+                        let top = stateStack.pop();
+                        if (top?.instruction == "function" || top == undefined) {
                             lastError = texts.errors.found.continueOutsideLoop + tokenIndexToLineMessage(tp);
                             return false;
                         }
                     }
-                    tokenPointerStack[lastTokenPointerIndex] = stateStack.pop().condition - 2n;
+                    tokenPointerStack[lastTokenPointerIndex] = stateStack.pop().loc;
                     break;
                 case "else":
                     {
@@ -1185,11 +1187,12 @@ function reset() {
     identifiers.clear()
     inverseIdentifiers.clear();
     output = "";
-    updateOutput();
     infoBox.innerHTML = "";
     lastErrorLine = 0n;
     clearInterval(clock);
     running = false;
+    updateOutput();
+    updateMemoryDisplay();
 }
 
 function step(stepCount = 1) {
