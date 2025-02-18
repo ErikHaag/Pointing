@@ -32,11 +32,12 @@ pauseButton.addEventListener("click", () => {
 });
 
 resetButton.addEventListener("click", () => {
+    reset();
     //love when you can use short circuiting to your advantage!
     if (!parsed && !parse()) {
         updateLineNumbers();
         displayError();
-    } 
+    }
     updateButtons();
 });
 
