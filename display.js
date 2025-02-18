@@ -1,7 +1,10 @@
-let lineCount = 1n;
-
 codeInput.addEventListener("input", (e) => {
-    switch (e.inputType) {
+    let force = parsed;
+    if (force) {
+        reset();
+        updateButtons();
+    }
+    switch (force ? "forced" : e.inputType) {
         case "insertLineBreak":
             lineCount++;
             updateLineNumbers();
@@ -11,6 +14,7 @@ codeInput.addEventListener("input", (e) => {
         case "deleteContentForward":
         case "deleteWordForward":
         case "deleteWordBackward":
+        case "force":
         case "historyRedo":
         case "historyUndo":
         case "insertFromPaste":
@@ -99,7 +103,7 @@ function updateLineNumbers() {
             // If this loop runs once in an actually script, I'll be very impressed
             n = n.substring(0, j) + "," + n.substring(j)
         }
-        lineBackgroundHTML += "<div class=\"" + ((i & 1n) == 0n ? "odd" : "") + (i == currentLine ? " current" : "") + (i == lastErrorLine ? " error": "") + "\"></div>";
+        lineBackgroundHTML += "<div class=\"" + ((i & 1n) == 0n ? "odd" : "") + (parsed && i == currentLine ? " current" : "") + (i == lastErrorLine ? " error": "") + "\"></div>";
         lineNumHtml += "<div class=\"" + getLineBannerColor(i) + (i == lastErrorLine ? " error": "") + "\">" + n + "</div>";
     }
     lineBackgroundBox.innerHTML = lineBackgroundHTML;

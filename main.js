@@ -754,6 +754,10 @@ function nextSubExpression(tp) {
                     counter += 2n;
                     break;
                 default:
+                    if (!functions.has(tokens[tp])) {
+                        lastError = texts.errors.missingFunction + tokenIndexToLineMessage(tp);
+                        return false
+                    }
                     counter += functions.get(tokens[tp])[0];
                     break;
             }
@@ -1124,6 +1128,7 @@ function parse() {
             }
         }
     }
+    parsed = true
 }
 
 function popFunctionCall() {
@@ -1159,21 +1164,35 @@ function reset() {
     functions = new Map();
     output = "";
     lastErrorLine = 0n;
+    clearInterval(clock);
+    running = false;
+    paused = false
+    parsed = false;
 }
 
-function step() {
+function step(stepCount = 1) {
     let result;
-    do {
-        result = doInstruction();
-        //This is the best backwards jump I can do.
-        //Probably programmed in MoreMathRPN too long.
-    } while (result === "again!")
+    for (let i = 0; i < stepCount; i++) {
+        do {
+            result = doInstruction();
+            //This is the best backwards jump I can do.
+            //Probably programmed in MoreMathRPN too long.
+        } while (result === "again!")
+        if (result == false) break;
+    }
     
     if (result === false) {
+        clearInterval(clock);
+        running = false;
+        updateButtons();
+        //TODO output
         console.error(lastError);
     }
     if (result === "EOP") {
-        console.log("EOF");
+        clearInterval(clock);
+        running = false;
+        updateButtons();
+        console.log("EOP");
     }
     updateLineNumbers();
 }
@@ -1187,6 +1206,9 @@ function tokenIndexToLineMessage(tI, setLEL = true) {
 }
 
 function tokenIndexToLineNumber(tI) {
+    if (tokenIndicesBeforeNewLine.length == 0) {
+        return 1;
+    }
     if (tokenIndicesBeforeNewLine.at(-1) <= tI) {
         return tokenIndicesBeforeNewLine.length + 1;
     }

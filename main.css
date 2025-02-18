@@ -2,12 +2,13 @@
 button {
     border-radius: 3px;
     box-shadow: 2px 2px 5px gray;
+    font-size: large;
     margin: 5px;
     padding: 2px;
-    width: 4em;
+    width: 4.75em;
 }
 
-button:active {
+button:not(.off):active {
     box-shadow: none;
 }
 
@@ -28,30 +29,46 @@ p {
 }
 
 #pause {
-    background-color: darkorange;
+    background-image: radial-gradient(circle farthest-side at center, hwb(33 5% 0%) 0% 50%, hwb(33 0% 0%) 100%);
     border: 3px #c67a00 outset;
 }
 
-#pause:active {
+#pause.off {
+    background-image: none;
+    background-color: hwb(33 0% 10%);
+}
+
+#pause:not(.off):active {
     border: 3px #c67a00 inset;
 }
 
 #reset {
-    background-color: rgb(180, 20, 20);
+    background-image: radial-gradient(circle farthest-side at center, hwb(0 13% 29%) 0% 50%, hwb(0 8% 29%) 100%);
     border: 3px maroon outset;
     color: white;
 }
 
-#reset:active {
+#reset.off {
+    background-image: none;
+    background-color: hwb(0 8% 39%);
+    color: hsl(0, 0, 70%)
+}
+
+#reset:not(.off):active {
     border: 3px maroon inset;
 }
 
 #run {
-    background-color: limegreen;
+    background-image: radial-gradient(circle farthest-side at center, hwb(120 30% 20%) 0% 50%, hwb(120 20% 20%) 100%);
     border: 3px green outset;
 }
 
-#run:active {
+#run.off {
+    background-image: none;
+    background-color: hwb(120 20% 30%);
+}
+
+#run:not(.off):active {
     border: 3px green inset;
 }
 
@@ -72,9 +89,9 @@ textarea {
     border: 5px maroon solid;
     font-family: monospace;
     font-size: 15px;
-    height: 50em;
+    height: 40em;
     line-height: 17px;
-    width: 50em;
+    width: 40em;
 }
 
 #lineBackgroundContainer, #linesContainer {
@@ -128,33 +145,33 @@ textarea {
 }
 
 #lineNumbers>div.red {
-    background: linear-gradient(to right, lightgray 0% 90%, red 90% 100%);
+    background: linear-gradient(45deg, transparent 0% 82.5%, red 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, red 82.5% 100%);
 }
 
 #lineNumbers>div.orange {
-    background: linear-gradient(to right, lightgray 0% 90%, orange 90% 100%);
+    background: linear-gradient(45deg, transparent 0% 82.5%, orange 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, orange 82.5% 100%);
 
 }
 
 #lineNumbers>div.yellow {
-    background: linear-gradient(to right, lightgray 0% 90%, yellow 90% 100%);
+    background: linear-gradient(45deg, transparent 0% 82.5%, yellow 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, yellow 82.5% 100%);
 
 }
 
 #lineNumbers>div.green {
-    background: linear-gradient(to right, lightgray 0% 90%, lime 90% 100%);
+    background: linear-gradient(45deg, transparent 0% 82.5%, lime 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, lime 82.5% 100%);
 
 }
 
 #lineNumbers>div.blue {
-    background: linear-gradient(to right, lightgray 0% 90%, blue 90% 100%);
+    background: linear-gradient(45deg, transparent 0% 82.5%, blue 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, blue 82.5% 100%);
 }
 
 #lineNumbers>div.purple {
-    background: linear-gradient(to right, lightgray 0% 90%, purple 90% 100%);
+    background: linear-gradient(45deg, transparent 0% 82.5%, purple 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, purple 82.5% 100%);
 }
 
 #lineNumbers>div.error {
-    background: linear-gradient(to right, red 0% 90%, blue 90% 100%);
+    background: linear-gradient(45deg, transparent 0% 82.5%, blue 82.5% 100%), linear-gradient(135deg, red 0% 82.5%, blue 82.5% 100%);
     color: white;
 }
