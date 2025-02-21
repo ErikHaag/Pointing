@@ -69,7 +69,7 @@ let lastError = "";
 let lastErrorLine = 0n;
 
 //Not alphabetized due to explicit priority
-const tokenRegexes = [/^\[[\S\s]*?\]/, /^\(/, /^\)/, /^\{/, /^\}/, /^function /, /^return( |(?=[,;]))/, /^if /, /^elseif /, /^else /, /^while /, /^continue(?=[,\n])/, /^break(?=[,\n])/, /^[A-Za-z]+(?![A-Za-z])/, /^@[A-Za-z]+(?![A-Za-z])/, /^(0|[1-9]\d*)(?![\d])/, /^\$/, /^\+/, /^_/, /^-/, /^\*/, /^\//, /^%/, /^==/, /^=/, /^<=/, /^>=/, /^</, /^>/, /^\u00AC/, /^\u2227/, /^\u2228/, /^\u22BB/, /^~/, /^&/, /^\|/, /^\^/, /^\?/, /^;/];
+const tokenRegexes = [/^/, /^\(/, /^\)/, /^\{/, /^\}/, /^function /, /^return( |(?=[,;]))/, /^if /, /^elseif /, /^else /, /^while /, /^continue(?=[,\n])/, /^break(?=[,\n])/, /^[A-Za-z]+(?![A-Za-z])/, /^@[A-Za-z]+(?![A-Za-z])/, /^(0|[1-9]\d*)(?![\d])/, /^\$/, /^\+/, /^_/, /^-/, /^\*/, /^\//, /^%/, /^==/, /^=/, /^<=/, /^>=/, /^</, /^>/, /^\u00AC/, /^\u2227/, /^\u2228/, /^\u22BB/, /^~/, /^&/, /^\|/, /^\^/, /^\?/, /^;/];
 const tokenName = ["comment", "openParen", "closeParen", "openBrac", "closeBrac", "function", "return", "if", "elseif", "else", "while", "continue", "break", "identifier", "identifierLocation", "integer", "follow", "add", "negate", "subtract", "multiply", "divide", "mod", "equal", "assign", "lessEqual", "greaterEqual", "less", "greater", "boolNot", "boolAnd", "boolOr", "boolXor", "bitNot", "bitAnd", "bitOr", "bitXor", "ternary", "semicolon"];
 
 function afterBlock(tp) {
