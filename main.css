@@ -183,7 +183,6 @@ textarea {
 /* Memory */
 #memoryContainer {
     width: 100%;
-    padding: 0px 5%;
     overflow-x: auto;
 }
 
