@@ -214,6 +214,7 @@ function doInstruction() {
                         break;
                     }
                     stateStack.push({ type: "return" }, [tp + 1n]);
+                    resultStack.push([]);
                     break;
                 case "while":
                     {
@@ -1182,6 +1183,7 @@ function reset() {
     mainMemory = [];
     orphanedPointers = [];
     stateStack = [];
+    resultStack = [];
     tokenPointerStack = [0n];
     callDepth = 0n;
     identifiers.clear()
