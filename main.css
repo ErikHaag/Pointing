@@ -194,8 +194,12 @@ textarea {
 
 #memoryBox>div{
     text-align: center;
-    min-width: 3em;
+    min-width: 60px;
     padding: 0px 3px;
+}
+
+#memoryBox>div:nth-child(odd) {
+    width: max-content;
 }
 
 #memoryBox>div:nth-child(even) {

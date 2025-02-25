@@ -130,12 +130,19 @@ function doInstruction() {
         case "functionCall":
             if (tokenNames[tp] == "closeBrac") {
                 if (stateStack.pop().instruction == "block") {
-                    if (stateStack.at(-1)?.instruction == "while") {
-                        tokenPointerStack[lastTokenPointerIndex] = stateStack.at(-1).loc;
-                        stateStack.pop();
-                    } else {
-                        //leave block
-                        tokenPointerStack[lastTokenPointerIndex]++;
+                    switch (stateStack.at(-1)?.instruction) {
+                        case "else":
+                            stateStack.pop();
+                            tokenPointerStack[lastTokenPointerIndex]++;
+                            break;
+                        case "while":
+                            tokenPointerStack[lastTokenPointerIndex] = stateStack.at(-1).loc;
+                            stateStack.pop();
+                            break;
+                        default:
+                            //leave block
+                            tokenPointerStack[lastTokenPointerIndex]++;
+                            break;
                     }
                 } else {
                     //leave function
@@ -172,12 +179,13 @@ function doInstruction() {
                 case "else":
                     {
                         let aB = afterBlock(tp + 1n);
-                        if (stateStack.pop()?.instruction == "fall") {
+                        if (stateStack.at(-1)?.instruction == "fall") {
+                            stateStack.pop();
                             tokenPointerStack[lastTokenPointerIndex] = aB;
-                            return "again!";
+                            return true;
                         }
                         tokenPointerStack[lastTokenPointerIndex] = tp + 2n;
-                        stateStack.push({ instruction: "block" });
+                        stateStack.push({ instruction: "else" }, { instruction: "block" })
                     }
                     break;
                 case "elseif":
@@ -188,10 +196,11 @@ function doInstruction() {
                             tokenPointerStack[lastTokenPointerIndex] = aB
                             if (tokenNames[aB] != "elseif" && tokenNames[aB] != "else") {
                                 stateStack.pop();
+                                return true;
                             }
                             return "again!";
                         }
-                        stateStack.splice(-1, 1, { instruction: "if", start: aC + 2n, after: aB }, "output", [tp + 2n]);
+                        stateStack.push({ instruction: "if", start: aC + 2n, after: aB }, "output", [tp + 2n]);
                         resultStack.push([]);
                     }
                     break;
@@ -264,6 +273,7 @@ function doInstruction() {
                 return true;
             }
             let instr = stateStack.at(-1);
+            lastTokenPointerIndex = tokenPointerStack.length - 1;
             switch (instr.instruction) {
                 case "assign":
                     if (instr.loc != null) {
@@ -738,7 +748,7 @@ function free(pointer, slots = 0n) {
 
 function jumpOverFunctions() {
     //jump over function definitions
-    while (tokenNames[tokenPointerStack[tokenPointerStack.length - 1]] == "function") {
+    while (tokenNames[tokenPointerStack.at(-1)] == "function") {
         tokenPointerStack[tokenPointerStack.length - 1] = functions.get(tokens[tokenPointerStack.at(-1) + 1n])[4] + 2n;
     }
 }
