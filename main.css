@@ -198,10 +198,6 @@ textarea {
     padding: 0px 3px;
 }
 
-#memoryBox>div:nth-child(odd) {
-    width: max-content;
-}
-
 #memoryBox>div:nth-child(even) {
     font-size: large;
     font-weight: bold;
