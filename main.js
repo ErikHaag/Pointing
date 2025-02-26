@@ -609,7 +609,7 @@ function evaluateExpression() {
                         }
                         {
                             let r = arg[0];
-                            for (let i = 0n; i < arg[2]; i++) {
+                            for (let i = 1n; i <= arg[2]; i++) {
                                 r = read(r);
                             }
                             resultStack[lastResultIndex].push(r);
@@ -786,6 +786,9 @@ function nextSubExpression(tp) {
                     break;
                 case "free":
                     counter += 2n;
+                    break;
+                case "fread":
+                    counter += 3n;
                     break;
                 default:
                     if (!functions.has(tokens[tp])) {
