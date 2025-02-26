@@ -353,21 +353,22 @@ function evaluateExpression() {
                                 if (tokenNames[CWTP + 1n] == "openParen") {
                                     let functionName = "";
                                     let argCount = 0n;
+                                    functionName = iden;
                                     switch (iden) {
                                         case "inputInt":
                                         case "allocate":
                                         case "inputStr":
                                         case "outputChar":
                                         case "outputInt":
-                                            functionName = iden;
                                             argCount = 1n;
                                             break;
                                         case "free":
-                                            functionName = iden;
                                             argCount = 2n;
                                             break;
+                                        case "fread":
+                                            argCount = 3n;
+                                            break;
                                         default:
-                                            functionName = iden;
                                             if (!functions.has(functionName)) {
                                                 lastError = texts.errors.missingFunction + tokenIndexToLineMessage(CWTP);
                                                 return false;
@@ -600,6 +601,20 @@ function evaluateExpression() {
                         }
                         free(arg[0], arg[1]);
                         resultStack[lastResultIndex].push("none");
+                        continue evalutron;
+                    case "fread":
+                        if (arg[0] == "empty" || arg[1] == "empty" || arg[2] == "empty") {
+                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tp);
+                            return false;
+                        }
+                        {
+                            let r = arg[0];
+                            for (let i = 0n; i < arg[2]; i++) {
+                                r = read(r);
+                            }
+                            resultStack[lastResultIndex].push(r);
+                        }
+                        free(arg[0], arg[1]);
                         continue evalutron;
                     case "inputInt":
                         {
