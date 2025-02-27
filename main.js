@@ -589,14 +589,14 @@ function evaluateExpression() {
                 switch (op.name) {
                     case "allocate":
                         if (arg[0] == "empty") {
-                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tp);
+                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tokenPointerStack.at(-1));
                             return false;
                         }
                         resultStack[lastResultIndex].push(allocate(arg[0]));
                         continue evalutron;
                     case "free":
                         if (arg[0] == "empty" || arg[1] == "empty") {
-                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tp);
+                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tokenPointerStack.at(-1));
                             return false;
                         }
                         free(arg[0], arg[1]);
@@ -604,7 +604,7 @@ function evaluateExpression() {
                         continue evalutron;
                     case "fread":
                         if (arg[0] == "empty" || arg[1] == "empty" || arg[2] == "empty") {
-                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tp);
+                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tokenPointerStack.at(-1));
                             return false;
                         }
                         {
@@ -619,7 +619,7 @@ function evaluateExpression() {
                     case "inputInt":
                         {
                             if (arg[0] == "empty") {
-                                lastError = texts.errors.found.empty + tokenIndexToLineMessage(tp);
+                                lastError = texts.errors.found.empty + tokenIndexToLineMessage(tokenPointerStack.at(-1));
                                 return false;
                             }
                             let inp = prompt(texts.integer);
@@ -634,7 +634,7 @@ function evaluateExpression() {
                     case "inputStr":
                         {
                             if (arg[0] == "empty") {
-                                lastError = texts.errors.found.empty + tokenIndexToLineMessage(tp);
+                                lastError = texts.errors.found.empty + tokenIndexToLineMessage(tokenPointerStack.at(-1));
                                 return false;
                             }
                             let inp = prompt(texts.string) + "\n";
@@ -648,7 +648,7 @@ function evaluateExpression() {
                         continue evalutron;
                     case "outputInt":
                         if (arg[0] == "empty") {
-                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tp);
+                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tokenPointerStack.at(-1));
                             return false;
                         }
                         output += arg[0].toString();
@@ -657,7 +657,7 @@ function evaluateExpression() {
                         continue evalutron;
                     case "outputChar":
                         if (arg[0] == "empty") {
-                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tp);
+                            lastError = texts.errors.found.empty + tokenIndexToLineMessage(tokenPointerStack.at(-1));
                             return false;
                         }
                         output += String.fromCharCode(Number(arg[0] & 65535n));
