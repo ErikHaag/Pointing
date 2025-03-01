@@ -34,6 +34,7 @@ codeInput.addEventListener("input", (e) => {
             // console.log(e.inputType);
             break;
     }
+    updateLink();
 })
 
 codeInput.addEventListener("scroll", () => {
@@ -154,10 +155,10 @@ function updateMemoryDisplay() {
     for (let i = -BigInt(orphanedPointers.length); i < 0n; i++) {
         let odd = (i & 1n) == 1n;
         let v = read(i);
-        memoryHTML += "<div  class=\"" + (odd ? " odd" : "") + "\">" + getName(inverseIdentifiers.get(i)) + "<br>" + i + "</div>";
-        memoryHTML += "<div  class=\"" + getSizeClass(v) + (odd ? "odd" : "") + "\">" + v + "</div>";
+        memoryHTML += "<div  class=\"" + (odd ? " odd" : "") + "\">" + getName(inverseIdentifiers.get(i)) + "<br>" + i + "<br>";
+        memoryHTML += "<div  class=\"" + getSizeClass(v) + (odd ? "odd" : "") + "\">" + v + "</div></div>";
     }
-    memoryHTML += "<div>@ROZ<br>0</div><div>0</div>";
+    memoryHTML += "<div>@ROZ<br>0<br><div>0</div></div>";
     let mainMemoryLength = BigInt(mainMemory.length);
     let previousI = 0n;
     for (let i = 1n; i <= mainMemoryLength; i++) {
@@ -167,16 +168,16 @@ function updateMemoryDisplay() {
         if (i - previousI <= 3n) {
             for (let j = previousI + 1n; j < i; j++) {
                 let odd = (j & 1n) == 1n;
-                memoryHTML += "<div" + (odd ? " class=\"odd\"" : "") + "><br>" + j + "</div>"
-                memoryHTML += "<div" + (odd ? " class=\"odd\"" : "") + ">&lt;empty&gt;</div>";
+                memoryHTML += "<div" + (odd ? " class=\"odd\"" : "") + "><br>" + j + "<br>";
+                memoryHTML += "<div" + (odd ? " class=\"odd\"" : "") + ">&lt;empty&gt;</div></div>";
             }
         } else {
             memoryHTML += "<div class=\"space\"><br>...</div><div class=\"space\"></div>";
         }
         let odd = (i & 1n) == 1n
         let v = read(i);
-        memoryHTML += "<div class=\"" + (odd ? "odd" : "") + "\"><br>" + i + "</div>";
-        memoryHTML += "<div  class=\"" + getSizeClass(v) + (odd ? " odd" : "") + "\">" + v + "</div>";
+        memoryHTML += "<div class=\"" + (odd ? "odd" : "") + "\"><br>" + i + "<br>";
+        memoryHTML += "<div  class=\"" + getSizeClass(v) + (odd ? " odd" : "") + "\">" + v + "</div></div>";
         previousI = i;
     }
     memoryBox.innerHTML = memoryHTML;

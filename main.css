@@ -12,6 +12,10 @@ button:not(.off):active {
     box-shadow: none;
 }
 
+#compressInfo {
+    margin-top: 0;
+}
+
 div.centerCol {
     display: grid;
     grid-template-columns: auto;
@@ -26,6 +30,14 @@ div.centerRow {
 
 h2 {
     margin-left: 15%;
+}
+
+#link {
+    word-break: break-all;
+}
+
+#linkDesc {
+    margin-bottom: 0px;
 }
 
 p {
@@ -197,7 +209,8 @@ textarea {
 
 #memoryBox {
     display: grid;
-    grid-template-rows: 2fr 1fr;
+    width: max-content;
+    grid-template-rows: 1fr;
     grid-auto-flow: column;
 }
 
@@ -207,22 +220,22 @@ textarea {
     padding: 0px 3px;
 }
 
-#memoryBox>div:nth-child(even) {
+#memoryBox>div>div {
     font-size: large;
     font-weight: bold;
 }
 
-#memoryBox>div:nth-child(even).long {
+#memoryBox>div>div.long {
     font-size: medium;
 }
 
-#memoryBox>div:nth-child(even).longer {
+#memoryBox>div>div.longer {
     /* That's huge! */
     font-size: small;
 }
 
 #memoryBox>div {
-    background-color: hwb(196 68% 10%)
+    background-color: hwb(196 68% 10%);
 }
 
 #memoryBox>div.odd {
@@ -236,12 +249,12 @@ textarea {
     font-weight: bold;
 }
 
+/* Info & Errors */
 #info>span {
     border: 3px blue solid;   
     font-size: large;
 }
 
-/* Info & Errors */
 #info>span.error {
     color: red;
     font-weight: bold;

@@ -16,8 +16,9 @@
     <div class="centerCol">
         <div id="memoryContainer">
             <div id="memoryBox">
-                <div>@ROZ<br>0</div>
-                <div>0</div>
+                <div>@ROZ<br>0
+                    <div>0</div>
+                </div>
             </div>
         </div>
     </div>
@@ -47,11 +48,21 @@
             <p id="output"></p> 
         </fieldset>
         <p>This programming language uses some non-ascii characters.<br>For copy-paste convenience, they are: &#x00AC; &#x2227; &#x2228; &#x22BB;</p>
+        <p id="linkDesc">Share this program with this link:</p>
+        <p id="link">erikhaag.github.io/Pointing/?lines=</p>
+        <div>
+            <label for="compress">Compress:</label>
+            <input type="checkbox" id="compress">
+            <p id="compressInfo">Compression: 70%</p>
+        </div>
+        <hr>
         <a href="https://esolangs.org/wiki/Pointing" target="_blank">Check out the esolang article!</a>
     </div>
 </body>
 <script src="elements.js"></script>
 <script src="variables.js"></script>
+<script src="huffman.js"></script>
+<script src="link.js"></script>
 <script src="main.js"></script>
 <script src="display.js"></script>
 <script src="buttons.js"></script>
