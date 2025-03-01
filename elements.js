@@ -13,6 +13,7 @@ const infoBox = document.getElementById("info");
 const outputP = document.getElementById("output");
 
 //buttons
+const speedButton = document.getElementById("speed");
 const runButton = document.getElementById("run");
 const pauseButton = document.getElementById("pause");
 const resetButton = document.getElementById("reset");

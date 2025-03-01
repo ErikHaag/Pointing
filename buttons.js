@@ -4,6 +4,7 @@ runButton.addEventListener("click", () => {
     }
     if (!running) {
         reset();
+        jumpOverFunctions();
         running = true;
         if (!paused) {
             startClock();
@@ -42,9 +43,21 @@ resetButton.addEventListener("click", () => {
 
 function startClock() {
     clock = setInterval(() => {
-        step();
-    }, 500);
+        step(stepCount);
+    }, stepPeriod);
 }
+
+speedButton.addEventListener("click", () => {
+    if (!parsed) {
+        return;
+    }
+    speed = (speed + 1n) % 5n;
+    clearInterval(clock);
+    updateSpeed();
+    if (running && !paused) {
+        startClock();
+    }
+});
 
 function updateButtons() {
     if (!parsed || running && !paused) {
@@ -54,8 +67,10 @@ function updateButtons() {
     }
     if (!parsed) {
         pauseButton.classList.add("off");
+        speedButton.classList.add("off");
     } else {
         pauseButton.classList.remove("off");
+        speedButton.classList.remove("off");
     }
     if (paused) {
         runButton.innerText = "Step";
@@ -63,5 +78,41 @@ function updateButtons() {
     } else {
         runButton.innerText = "Run";
         pauseButton.innerText = "Pause";
+    }
+}
+
+function updateSpeed() {
+    switch (speed) {
+        case 0n:
+            stepPeriod = 500;
+            stepCount = 1;
+            speedButton.innerHTML = "&gt;";
+            break;
+        case 1n:
+            stepPeriod = 250;
+            stepCount = 1;
+            speedButton.innerHTML = "&gt;&gt;";
+            break;
+        case 2n:
+            stepPeriod = 100;
+            stepCount = 1;
+            speedButton.innerHTML = "&gt;&gt;&gt;";
+            break;
+        case 3n:
+            stepPeriod = 100;
+            stepCount = 2;
+            speedButton.innerHTML = "&gt;&gt;&gt;&gt;";
+            break;
+        case 4n:
+            stepPeriod = 100;
+            stepCount = 5;
+            speedButton.innerHTML = "&gt;&gt;&gt;&gt;&gt;";
+            break;
+        default:
+            speed = 0n;
+            stepPeriod = 500;
+            stepCount = 1;
+            speedButton.innerHTML = "&gt;"
+            break;
     }
 }

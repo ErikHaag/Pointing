@@ -52,13 +52,7 @@ p {
     color: white;
 }
 
-#reset.off {
-    background-image: none;
-    background-color: hwb(0 8% 39%);
-    color: hsl(0, 0, 70%)
-}
-
-#reset:not(.off):active {
+#reset:active {
     border: 3px maroon inset;
 }
 
@@ -74,6 +68,21 @@ p {
 
 #run:not(.off):active {
     border: 3px green inset;
+}
+
+#speed {
+    background-image: radial-gradient(circle farthest-side at center, hwb(225 5% 0%) 0% 50%, hwb(225 0% 0%) 100%);
+    border: 3px navy outset;
+    color: white;
+}
+
+#speed.off {
+    background-image: none;
+    background-color: hwb(225 0% 10%);
+}
+
+#speed:not(.off):active {
+    border: 3px navy inset;
 }
 
 /* 
