@@ -159,6 +159,7 @@ textarea {
 }
 
 #lineNumbers>div {
+    background-color: lightgray;
     color: #410d0d;
     font-family: monospace;
     font-weight: bold;
@@ -170,34 +171,34 @@ textarea {
 }
 
 #lineNumbers>div.red {
-    background: linear-gradient(45deg, transparent 0% 82.5%, red 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, red 82.5% 100%);
+    background-image: linear-gradient(45deg, transparent 0% 82.5%, red 82.5% 100%), linear-gradient(135deg, transparent 0% 82.5%, red 82.5% 100%);
 }
 
 #lineNumbers>div.orange {
-    background: linear-gradient(45deg, transparent 0% 82.5%, orange 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, orange 82.5% 100%);
+    background-image: linear-gradient(45deg, transparent 0% 82.5%, orange 82.5% 100%), linear-gradient(135deg, transparent 0% 82.5%, orange 82.5% 100%);
 
 }
 
 #lineNumbers>div.yellow {
-    background: linear-gradient(45deg, transparent 0% 82.5%, yellow 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, yellow 82.5% 100%);
+    background-image: linear-gradient(45deg, transparent 0% 82.5%, yellow 82.5% 100%), linear-gradient(135deg, transparent 0% 82.5%, yellow 82.5% 100%);
 
 }
 
 #lineNumbers>div.green {
-    background: linear-gradient(45deg, transparent 0% 82.5%, lime 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, lime 82.5% 100%);
+    background-image: linear-gradient(45deg, transparent 0% 82.5%, lime 82.5% 100%), linear-gradient(135deg, transparent 0% 82.5%, lime 82.5% 100%);
 
 }
 
 #lineNumbers>div.blue {
-    background: linear-gradient(45deg, transparent 0% 82.5%, blue 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, blue 82.5% 100%);
+    background-image: linear-gradient(45deg, transparent 0% 82.5%, blue 82.5% 100%), linear-gradient(135deg, transparent 0% 82.5%, blue 82.5% 100%);
 }
 
 #lineNumbers>div.purple {
-    background: linear-gradient(45deg, transparent 0% 82.5%, purple 82.5% 100%), linear-gradient(135deg, lightgray 0% 82.5%, purple 82.5% 100%);
+    background-image: linear-gradient(45deg, transparent 0% 82.5%, purple 82.5% 100%), linear-gradient(135deg, transparent 0% 82.5%, purple 82.5% 100%);
 }
 
 #lineNumbers>div.error {
-    background: linear-gradient(45deg, transparent 0% 82.5%, blue 82.5% 100%), linear-gradient(135deg, red 0% 82.5%, blue 82.5% 100%);
+    background-color: maroon;
     color: white;
 }
 

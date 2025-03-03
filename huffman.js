@@ -69,7 +69,7 @@ function huffmanDecoding(treeString, encodedString) {
     for (let i = 0; i < treeString.length; i++) {
         if (treeString[i] == "o" && treeString[i + 1] == "p") {
             tree.push("op");
-            i += 2;
+            i++;
             continue;
         }
         tree.push(treeString[i]);
@@ -106,5 +106,5 @@ function huffmanDecoding(treeString, encodedString) {
             }
         }
     }
-    instructionInput.value = decodedString;
+    return decodedString;
 }

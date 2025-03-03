@@ -8,11 +8,19 @@ document.addEventListener("DOMContentLoaded", () => {
         codeInput.value = decodeURIComponent(params.get("ln"));
     }
     updateLink();
-})
+    //line numbers
+    let i = -1; 
+    lineCount = 0;
+    do {
+        i = codeInput.value.indexOf("\n", i + 1);
+        lineCount++
+    } while (i != -1)
+    updateLineNumbers();
+});
 
 compressCheck.addEventListener("change", () => {
     updateLink();
-})
+});
 
 function updateLink() {
     let linkParams = "";
