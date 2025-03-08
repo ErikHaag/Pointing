@@ -172,7 +172,7 @@ function updateMemoryDisplay() {
                 memoryHTML += "<div" + (odd ? " class=\"odd\"" : "") + ">&lt;empty&gt;</div></div>";
             }
         } else {
-            memoryHTML += "<div class=\"space\"><br>...</div><div class=\"space\"></div>";
+            memoryHTML += "<div class=\"space\"><br>...<br></div>";
         }
         let odd = (i & 1n) == 1n
         let v = read(i);
