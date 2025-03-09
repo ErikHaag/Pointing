@@ -114,9 +114,9 @@ textarea {
     border: 5px maroon solid;
     font-family: monospace;
     font-size: 15px;
-    height: 200px;
+    height: 400px;
     line-height: 17px;
-    width: 15em;
+    width: 500px;
 }
 
 #lineBackgroundContainer, #linesContainer {

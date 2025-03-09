@@ -38,5 +38,5 @@ function updateLink() {
         linkParams = "ln=" + uncompressed
     }
     compressInfo.hidden = !compressionSuccess;
-    link.innerText = "erikhaag.github.io/Pointing/?" + linkParams + "\nMake sure to test this link first before posting!";
+    link.innerText = "https://erikhaag.github.io/Pointing/?" + linkParams + "\nMake sure to test this link first before posting!";
 }
