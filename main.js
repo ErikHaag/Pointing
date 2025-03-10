@@ -22,6 +22,7 @@ let output = "";
 
 const texts = {
     errors: {
+        div0: "Division by zero",
         found: {
             assign: "Unexpected \"=\"",
             break: "Unexpected \"break\"",
@@ -577,6 +578,10 @@ function evaluateExpression() {
                 resultStack[lastResultIndex].push((arg[0] == 0n || arg[0] == "empty") == (arg[0] == 0n || arg[0] == "empty") ? 0n : -1n);
                 break;
             case "divide":
+                if (arg[1] == 0n) {
+                    lastError = texts.errors.div0;
+                    return false;
+                }
                 resultStack[lastResultIndex].push(arg[0] / arg[1]);
                 break;
             case "equal":
@@ -693,7 +698,11 @@ function evaluateExpression() {
                 resultStack[lastResultIndex].push(arg[0] <= arg[1] ? -1n : 0n);
                 break;
             case "mod":
-                resultStack[lastResultIndex].push(arg[0] % arg[1]);
+                if (arg[1] == 0n) {
+                    resultStack[lastResultIndex].push(0n);
+                } else {
+                    resultStack[lastResultIndex].push(arg[0] % arg[1]);
+                }
                 break;
             case "multiply":
                 resultStack[lastResultIndex].push(arg[0] * arg[1]);
