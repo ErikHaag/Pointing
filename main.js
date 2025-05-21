@@ -221,7 +221,8 @@ function doInstruction() {
                     if (tokenNames[tp + 1n] == "semicolon") {
                         resultStack[resultStack.length - 1].push("none");
                         popFunctionCall();
-                        break;
+                        stateStack.push({ instruction: "continueEvaluation" });
+                        return "again!";
                     }
                     stateStack.push({ type: "return" }, [tp + 1n]);
                     resultStack.push([]);
