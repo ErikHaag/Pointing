@@ -23,11 +23,17 @@ compressCheck.addEventListener("change", () => {
 });
 
 function updateLink() {
+    function fullEncode(s) {
+        return encodeURIComponent(s).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+    }
+
     let linkParams = "";
     let compressionSuccess = false;
-    let uncompressed = encodeURIComponent(codeInput.value);
+    let uncompressed = fullEncode(codeInput.value);
     if (compressCheck.checked) {
         let [tree, encoded] = huffmanEncoding();
+        tree = fullEncode(tree);
+        encoded = fullEncode(tree);
         if (tree !== false) {
             linkParams = "ht=" + tree + "&hs=" + encoded;
             compressionSuccess = true;

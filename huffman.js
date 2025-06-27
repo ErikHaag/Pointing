@@ -60,7 +60,7 @@ function huffmanEncoding() {
     for (; encoded > 0n; encoded >>= 6n) {
         encodedString = encodingString[encoded & 63n] + encodedString;
     }
-    return [encodeURIComponent(tree), encodeURIComponent(encodedString)];
+    return [tree, encodedString];
 }
 
 function huffmanDecoding(treeString, encodedString) {
