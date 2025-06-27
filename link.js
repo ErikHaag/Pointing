@@ -2,10 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let url = new URL(document.location);
     let params = url.searchParams;
     if (params.has("ht") && params.has("hs")) {
-        codeInput.value = huffmanDecoding(decodeURIComponent(params.get("ht")), decodeURIComponent(params.get("hs")));
+        codeInput.value = huffmanDecoding(params.get("ht"), params.get("hs"));
         compressCheck.checked = true;
     } else if (params.has("ln")) {
-        codeInput.value = decodeURIComponent(params.get("ln"));
+        codeInput.value = params.get("ln");
     }
     updateLink();
     //line numbers
