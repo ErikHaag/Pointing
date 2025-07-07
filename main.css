@@ -116,7 +116,7 @@ textarea {
     font-size: 15px;
     height: 400px;
     line-height: 17px;
-    width: 500px;
+    width: calc(min(500px, 90vw - 50px));
 }
 
 #lineBackgroundContainer, #linesContainer {
