@@ -33,7 +33,7 @@ function updateLink() {
     if (compressCheck.checked) {
         let [tree, encoded] = huffmanEncoding();
         tree = fullEncode(tree);
-        encoded = fullEncode(tree);
+        encoded = fullEncode(encoded);
         if (tree !== false) {
             linkParams = "ht=" + tree + "&hs=" + encoded;
             compressionSuccess = true;
